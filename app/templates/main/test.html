@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegance Nails - Sistema Funcionando</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-spa me-2"></i>Elegance Nails
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="#"><i class="fas fa-home me-1"></i>Inicio</a>
+                <a class="nav-link" href="#"><i class="fas fa-cut me-1"></i>Servicios</a>
+                <a class="nav-link" href="#"><i class="fas fa-calendar me-1"></i>Citas</a>
+                <a class="nav-link" href="#"><i class="fas fa-user me-1"></i>Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-12">
+                    <h1><i class="fas fa-check-circle text-success"></i> ¡Sistema Funcionando!</h1>
+                    <p class="lead">Elegance Nails - Sistema de Gestión de Salón de Uñas</p>
+                    <div class="alert alert-success d-inline-block">
+                        <i class="fas fa-database me-2"></i>Base de datos SQLite conectada y funcionando
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Section -->
+    <div class="container my-5">
+        <h2 class="text-center mb-4">Servicios Destacados</h2>
+        <div class="services-grid">
+            {% for service in featured_services %}
+            <div class="service-card">
+                <div class="service-image">
+                    <i class="fas fa-cut"></i>
+                </div>
+                <div class="service-content">
+                    <h3 class="service-title">{{ service.name }}</h3>
+                    <p class="service-description">{{ service.description }}</p>
+                    <div class="service-price">${{ "%.2f"|format(service.price) }}</div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ service.duration_minutes }} min
+                        </small>
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fas fa-calendar-plus me-1"></i>Reservar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Status Section -->
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-cog me-2"></i>Estado del Sistema</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Flask funcionando</li>
+                            <li><i class="fas fa-check text-success me-2"></i>SQLite conectado</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Templates cargando</li>
+                            <li><i class="fas fa-check text-success me-2"></i>CSS aplicado</li>
+                            <li><i class="fas fa-check text-success me-2"></i>JavaScript activo</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-users me-2"></i>Acceso Rápido</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="/auth/login" class="btn btn-outline-primary">
+                                <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                            </a>
+                            <a href="/auth/register" class="btn btn-outline-secondary">
+                                <i class="fas fa-user-plus me-2"></i>Registrarse
+                            </a>
+                            <a href="/services" class="btn btn-outline-info">
+                                <i class="fas fa-list me-2"></i>Ver Servicios
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="text-center">
+                <p>&copy; {{ current_year }} Elegance Nails. Sistema funcionando correctamente.</p>
+                <small class="text-muted">Desarrollado con Flask + SQLite</small>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

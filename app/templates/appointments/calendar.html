@@ -1,0 +1,229 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Calendario de Citas - Elegance Nails{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-calendar me-2"></i>Calendario de Citas
+                </h1>
+                <div>
+                    <a href="{{ url_for('appointments.create_appointment') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Nueva Cita
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación del Calendario -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% set prev_month = current_month - 1 if current_month > 1 else 12 %}
+                            {% set prev_year = current_year if current_month > 1 else current_year - 1 %}
+                            <a href="{{ url_for('appointments.calendar', year=prev_year, month=prev_month) }}" 
+                               class="btn btn-outline-primary">
+                                <i class="fas fa-chevron-left me-1"></i>Anterior
+                            </a>
+                        </div>
+                        
+                        <h4 class="mb-0">
+                            {% set months = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                                             'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'] %}
+                            {{ months[current_month] }} {{ current_year }}
+                        </h4>
+                        
+                        <div>
+                            {% set next_month = current_month + 1 if current_month < 12 else 1 %}
+                            {% set next_year = current_year if current_month < 12 else current_year + 1 %}
+                            <a href="{{ url_for('appointments.calendar', year=next_year, month=next_month) }}" 
+                               class="btn btn-outline-primary">
+                                Siguiente<i class="fas fa-chevron-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendario -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0 calendar-table">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="text-center p-3">Domingo</th>
+                                    <th class="text-center p-3">Lunes</th>
+                                    <th class="text-center p-3">Martes</th>
+                                    <th class="text-center p-3">Miércoles</th>
+                                    <th class="text-center p-3">Jueves</th>
+                                    <th class="text-center p-3">Viernes</th>
+                                    <th class="text-center p-3">Sábado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set current_date = namespace(value=1) %}
+                                {% set first_day = [0, 6, 5, 4, 3, 2, 1][(current_year * 365 + current_year // 4 - current_year // 100 + current_year // 400 + [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334][current_month - 1] + (1 if current_month > 2 and current_year % 4 == 0 and (current_year % 100 != 0 or current_year % 400 == 0) else 0)) % 7] %}
+                                {% set days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][current_month - 1] %}
+                                {% if current_month == 2 and current_year % 4 == 0 and (current_year % 100 != 0 or current_year % 400 == 0) %}
+                                    {% set days_in_month = 29 %}
+                                {% endif %}
+
+                                {% for week in range(6) %}
+                                <tr>
+                                    {% for day_of_week in range(7) %}
+                                    <td class="calendar-cell p-2" style="height: 120px; vertical-align: top; width: 14.28%;">
+                                        {% set day_number = week * 7 + day_of_week - first_day + 1 %}
+                                        {% if day_number > 0 and day_number <= days_in_month %}
+                                            <div class="calendar-day">
+                                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                                    <span class="day-number fw-bold">{{ day_number }}</span>
+                                                    {% set date_key = current_year ~ '-' ~ '%02d'|format(current_month) ~ '-' ~ '%02d'|format(day_number) %}
+                                                    {% if date_key in appointments_by_date %}
+                                                        <small class="badge bg-info">{{ appointments_by_date[date_key]|length }}</small>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                {% if date_key in appointments_by_date %}
+                                                <div class="appointments-list">
+                                                    {% for appointment in appointments_by_date[date_key][:3] %}
+                                                    <div class="appointment-item mb-1">
+                                                        <a href="{{ url_for('appointments.view_appointment', id=appointment.id) }}" 
+                                                           class="btn btn-sm w-100 text-start appointment-btn 
+                                                                  {{ 'btn-success' if appointment.status.value == 'confirmed' 
+                                                                     else 'btn-warning' if appointment.status.value == 'pending' 
+                                                                     else 'btn-info' if appointment.status.value == 'completed' 
+                                                                     else 'btn-danger' }}" 
+                                                           style="font-size: 0.7rem; padding: 2px 4px;">
+                                                            <div class="fw-bold">{{ appointment.start_time.strftime('%H:%M') }}</div>
+                                                            <div class="text-truncate">{{ appointment.client.first_name }}</div>
+                                                        </a>
+                                                    </div>
+                                                    {% endfor %}
+                                                    
+                                                    {% if appointments_by_date[date_key]|length > 3 %}
+                                                    <div class="text-center">
+                                                        <small class="text-muted">+{{ appointments_by_date[date_key]|length - 3 }} más</small>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leyenda -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6>Leyenda de Estados:</h6>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-warning me-2">P</span>
+                            <small>Pendiente</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-success me-2">C</span>
+                            <small>Confirmada</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-info me-2">T</span>
+                            <small>Completada</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-danger me-2">X</span>
+                            <small>Cancelada</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.calendar-table td {
+    border: 1px solid #dee2e6 !important;
+}
+
+.calendar-cell:hover {
+    background-color: #f8f9fa;
+}
+
+.day-number {
+    color: #495057;
+}
+
+.appointment-btn {
+    border: none !important;
+    margin-bottom: 1px;
+}
+
+.appointment-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.appointments-list {
+    max-height: 90px;
+    overflow: hidden;
+}
+
+.calendar-day {
+    min-height: 100px;
+}
+
+@media (max-width: 768px) {
+    .calendar-cell {
+        font-size: 0.8rem;
+    }
+    
+    .appointment-btn {
+        font-size: 0.6rem !important;
+        padding: 1px 2px !important;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Destacar el día actual
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
+    
+    if (currentMonth === {{ current_month }} && currentYear === {{ current_year }}) {
+        const dayNumbers = document.querySelectorAll('.day-number');
+        dayNumbers.forEach(function(dayEl) {
+            if (parseInt(dayEl.textContent) === currentDay) {
+                dayEl.classList.add('text-primary', 'bg-primary', 'text-white', 'rounded');
+                dayEl.style.padding = '2px 6px';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

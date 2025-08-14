@@ -1,0 +1,104 @@
+{% extends "base/layout.html" %}
+
+{% block title %}Iniciar Sesión - Salón de Uñas Elegance{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-spa fa-3x text-primary mb-3"></i>
+                        <h3 class="fw-bold">Iniciar Sesión</h3>
+                        <p class="text-muted">Accede a tu cuenta de Elegance Nails</p>
+                    </div>
+                    
+                    <form method="POST" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">
+                                <i class="fas fa-envelope me-2"></i>Correo Electrónico
+                            </label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email" 
+                                   placeholder="tu@email.com" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-semibold">
+                                <i class="fas fa-lock me-2"></i>Contraseña
+                            </label>
+                            <div class="position-relative">
+                                <input type="password" class="form-control form-control-lg" id="password" 
+                                       name="password" placeholder="Tu contraseña" required>
+                                <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y" 
+                                        onclick="togglePassword('password')">
+                                    <i class="fas fa-eye" id="password-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <label class="form-check-label" for="remember">
+                                Recordarme
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                            </button>
+                        </div>
+                        
+                        <div class="text-center">
+                            <p class="mb-2">
+                                <a href="#" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
+                            </p>
+                            <p class="text-muted">
+                                ¿No tienes cuenta? 
+                                <a href="{{ url_for('auth.register') }}" class="text-primary fw-semibold text-decoration-none">
+                                    Regístrate aquí
+                                </a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Demo Accounts Info -->
+            <div class="card mt-4 border-warning">
+                <div class="card-body">
+                    <h6 class="card-title text-warning">
+                        <i class="fas fa-info-circle me-2"></i>Cuentas de Demostración
+                    </h6>
+                    <small class="text-muted">
+                        <strong>Cliente:</strong> maria@ejemplo.com / cliente123<br>
+                        <strong>Empleado:</strong> sofia@ejemplo.com / empleado123<br>
+                        <em>Usa estas credenciales para probar la aplicación</em>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const eye = document.getElementById(inputId + '-eye');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        eye.classList.remove('fa-eye');
+        eye.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        eye.classList.remove('fa-eye-slash');
+        eye.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}

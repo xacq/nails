@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Negocio - Elegance Nails</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .registration-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+        }
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+        }
+        .step-indicator {
+            counter-reset: step;
+        }
+        .step-indicator li {
+            counter-increment: step;
+            position: relative;
+        }
+        .step-indicator li:before {
+            content: counter(step);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #6c757d;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .step-indicator li.completed:before {
+            background: #28a745;
+        }
+        .step-indicator li.active:before {
+            background: #667eea;
+        }
+        .preview-card {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+        }
+        .address-suggestion {
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .address-suggestion:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
+                <i class="fas fa-gem text-primary"></i> Elegance Nails
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('login') }}">
+                    <i class="fas fa-sign-in-alt"></i> ¿Ya tienes cuenta?
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="registration-header">
+        <div class="container text-center">
+            <h1 class="display-6 fw-bold mb-3">Registra tu Negocio</h1>
+            <p class="lead">Únete a nuestra plataforma y comienza a hacer crecer tu salón</p>
+        </div>
+    </section>
+
+    <!-- Formulario de Registro -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Indicador de Pasos -->
+                    <ol class="list-unstyled d-flex justify-content-between step-indicator mb-4">
+                        <li class="flex-fill text-center active">
+                            <div class="step-title mt-3">Información Básica</div>
+                        </li>
+                        <li class="flex-fill text-center">
+                            <div class="step-title mt-3">Ubicación</div>
+                        </li>
+                        <li class="flex-fill text-center">
+                            <div class="step-title mt-3">Plan y Finalizar</div>
+                        </li>
+                    </ol>
+
+                    <!-- Formulario -->
+                    <form id="registrationForm" method="POST" enctype="multipart/form-data">
+                        <!-- Paso 1: Información Básica -->
+                        <div class="form-step active" id="step1">
+                            <div class="card shadow">
+                                <div class="card-header bg-primary text-white">
+                                    <h4 class="mb-0"><i class="fas fa-store"></i> Información del Negocio</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="business_name" class="form-label">Nombre del Negocio *</label>
+                                            <input type="text" class="form-control" id="business_name" name="business_name" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="business_type" class="form-label">Tipo de Negocio *</label>
+                                            <select class="form-select" id="business_type" name="business_type" required>
+                                                <option value="">Seleccionar...</option>
+                                                <option value="NAIL_SALON">Salón de Uñas</option>
+                                                <option value="BEAUTY_SALON">Salón de Belleza</option>
+                                                <option value="SPA">Spa</option>
+                                                <option value="BARBERSHOP">Barbería</option>
+                                                <option value="WELLNESS_CENTER">Centro de Bienestar</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Descripción del Negocio</label>
+                                        <textarea class="form-control" id="description" name="description" rows="3" 
+                                                placeholder="Describe tu negocio, servicios principales, especialidades..."></textarea>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="phone" class="form-label">Teléfono *</label>
+                                            <input type="tel" class="form-control" id="phone" name="phone" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="email" class="form-label">Email *</label>
+                                            <input type="email" class="form-control" id="email" name="email" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="website" class="form-label">Sitio Web</label>
+                                        <input type="url" class="form-control" id="website" name="website" 
+                                               placeholder="https://tu-sitio-web.com">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="logo" class="form-label">Logo del Negocio</label>
+                                        <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                                        <div class="form-text">Formatos soportados: JPG, PNG, GIF. Máximo 5MB.</div>
+                                    </div>
+
+                                    <!-- Preview del Logo -->
+                                    <div class="preview-card" id="logoPreview">
+                                        <div class="text-muted">
+                                            <i class="fas fa-image fa-3x mb-2"></i>
+                                            <p>Vista previa del logo aparecerá aquí</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Información del Propietario -->
+                            <div class="card shadow mt-4">
+                                <div class="card-header bg-info text-white">
+                                    <h4 class="mb-0"><i class="fas fa-user"></i> Información del Propietario</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="owner_name" class="form-label">Nombre Completo *</label>
+                                            <input type="text" class="form-control" id="owner_name" name="owner_name" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="owner_email" class="form-label">Email (para login) *</label>
+                                            <input type="email" class="form-control" id="owner_email" name="owner_email" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="password" class="form-label">Contraseña *</label>
+                                            <input type="password" class="form-control" id="password" name="password" required minlength="8">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="confirm_password" class="form-label">Confirmar Contraseña *</label>
+                                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="button" class="btn btn-primary btn-lg" onclick="nextStep()">
+                                    Siguiente <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Paso 2: Ubicación -->
+                        <div class="form-step" id="step2">
+                            <div class="card shadow">
+                                <div class="card-header bg-primary text-white">
+                                    <h4 class="mb-0"><i class="fas fa-map-marker-alt"></i> Ubicación del Negocio</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        Esta información se usará para mostrar tu negocio en el mapa y facilitar que los clientes te encuentren.
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="address" class="form-label">Dirección Completa *</label>
+                                        <input type="text" class="form-control" id="address" name="address" required
+                                               placeholder="Ej: Calle Mayor 123, Local 2">
+                                        <div id="addressSuggestions" class="border rounded mt-1" style="display: none;"></div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="city" class="form-label">Ciudad *</label>
+                                            <input type="text" class="form-control" id="city" name="city" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="state" class="form-label">Estado/Provincia</label>
+                                            <input type="text" class="form-control" id="state" name="state">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="postal_code" class="form-label">Código Postal</label>
+                                            <input type="text" class="form-control" id="postal_code" name="postal_code">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="country" class="form-label">País *</label>
+                                            <select class="form-select" id="country" name="country" required>
+                                                <option value="España" selected>España</option>
+                                                <option value="México">México</option>
+                                                <option value="Argentina">Argentina</option>
+                                                <option value="Colombia">Colombia</option>
+                                                <option value="Chile">Chile</option>
+                                                <option value="Perú">Perú</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="latitude" class="form-label">Latitud</label>
+                                            <input type="number" step="any" class="form-control" id="latitude" name="latitude" readonly>
+                                            <div class="form-text">Se completará automáticamente</div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="longitude" class="form-label">Longitud</label>
+                                            <input type="number" step="any" class="form-control" id="longitude" name="longitude" readonly>
+                                            <div class="form-text">Se completará automáticamente</div>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-outline-primary" onclick="geocodeAddress()">
+                                        <i class="fas fa-search-location"></i> Buscar Coordenadas
+                                    </button>
+
+                                    <div class="mt-3" id="locationStatus"></div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-secondary btn-lg" onclick="prevStep()">
+                                    <i class="fas fa-arrow-left"></i> Anterior
+                                </button>
+                                <button type="button" class="btn btn-primary btn-lg" onclick="nextStep()">
+                                    Siguiente <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Paso 3: Plan y Finalizar -->
+                        <div class="form-step" id="step3">
+                            <div class="card shadow">
+                                <div class="card-header bg-primary text-white">
+                                    <h4 class="mb-0"><i class="fas fa-crown"></i> Selecciona tu Plan</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        {% for plan in plans %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100 {% if plan.slug == 'premium' %}border-primary{% endif %}">
+                                                <div class="card-body">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="plan_id" 
+                                                               id="plan_{{ plan.id }}" value="{{ plan.id }}" 
+                                                               {% if loop.first %}checked{% endif %}>
+                                                        <label class="form-check-label w-100" for="plan_{{ plan.id }}">
+                                                            <h5 class="card-title">{{ plan.name }}</h5>
+                                                            <p class="card-text">{{ plan.description }}</p>
+                                                            <div class="mb-2">
+                                                                <strong class="text-primary fs-4">
+                                                                    {% if plan.price == 0 %}
+                                                                        Gratis
+                                                                    {% else %}
+                                                                        ${{ "%.0f"|format(plan.price) }}/mes
+                                                                    {% endif %}
+                                                                </strong>
+                                                            </div>
+                                                            <ul class="list-unstyled small">
+                                                                <li><i class="fas fa-check text-success"></i> {{ plan.max_employees }} empleados</li>
+                                                                <li><i class="fas fa-check text-success"></i> {{ plan.max_services }} servicios</li>
+                                                                <li><i class="fas fa-check text-success"></i> {{ plan.max_appointments_month }} citas/mes</li>
+                                                                {% if plan.has_online_booking %}
+                                                                <li><i class="fas fa-check text-success"></i> Reservas online</li>
+                                                                {% endif %}
+                                                                {% if plan.has_analytics %}
+                                                                <li><i class="fas fa-check text-success"></i> Analytics</li>
+                                                                {% endif %}
+                                                            </ul>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="form-check mt-3">
+                                        <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                                        <label class="form-check-label" for="terms">
+                                            Acepto los <a href="#" target="_blank">términos y condiciones</a> y la 
+                                            <a href="#" target="_blank">política de privacidad</a> *
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter">
+                                        <label class="form-check-label" for="newsletter">
+                                            Quiero recibir noticias y actualizaciones por email
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-secondary btn-lg" onclick="prevStep()">
+                                    <i class="fas fa-arrow-left"></i> Anterior
+                                </button>
+                                <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+                                    <i class="fas fa-rocket"></i> Crear Negocio
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        // Navegación entre pasos
+        function nextStep() {
+            if (validateStep(currentStep)) {
+                if (currentStep < totalSteps) {
+                    document.getElementById(`step${currentStep}`).classList.remove('active');
+                    currentStep++;
+                    document.getElementById(`step${currentStep}`).classList.add('active');
+                    updateStepIndicator();
+                }
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep--;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateStepIndicator();
+            }
+        }
+
+        function updateStepIndicator() {
+            const indicators = document.querySelectorAll('.step-indicator li');
+            indicators.forEach((indicator, index) => {
+                indicator.classList.remove('active', 'completed');
+                if (index + 1 < currentStep) {
+                    indicator.classList.add('completed');
+                } else if (index + 1 === currentStep) {
+                    indicator.classList.add('active');
+                }
+            });
+        }
+
+        // Validación de pasos
+        function validateStep(step) {
+            const stepElement = document.getElementById(`step${step}`);
+            const requiredInputs = stepElement.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredInputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            // Validaciones específicas
+            if (step === 1) {
+                // Validar confirmación de contraseña
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm_password').value;
+                if (password !== confirmPassword) {
+                    document.getElementById('confirm_password').classList.add('is-invalid');
+                    alert('Las contraseñas no coinciden');
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        // Preview del logo
+        document.getElementById('logo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('logoPreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" class="logo-preview" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = `
+                    <div class="text-muted">
+                        <i class="fas fa-image fa-3x mb-2"></i>
+                        <p>Vista previa del logo aparecerá aquí</p>
+                    </div>
+                `;
+            }
+        });
+
+        // Geocodificación de dirección
+        async function geocodeAddress() {
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const country = document.getElementById('country').value;
+
+            if (!address || !city) {
+                alert('Por favor completa la dirección y ciudad');
+                return;
+            }
+
+            const statusDiv = document.getElementById('locationStatus');
+            statusDiv.innerHTML = '<div class="text-info"><i class="fas fa-spinner fa-spin"></i> Buscando coordenadas...</div>';
+
+            try {
+                const response = await fetch('/api/map/geocode', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        address: address,
+                        city: city,
+                        country: country
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('latitude').value = data.coordinates.latitude;
+                    document.getElementById('longitude').value = data.coordinates.longitude;
+                    statusDiv.innerHTML = '<div class="text-success"><i class="fas fa-check"></i> Coordenadas encontradas correctamente</div>';
+                } else {
+                    statusDiv.innerHTML = '<div class="text-warning"><i class="fas fa-exclamation-triangle"></i> No se pudieron encontrar las coordenadas. Verifica la dirección.</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<div class="text-danger"><i class="fas fa-times"></i> Error al buscar coordenadas</div>';
+            }
+        }
+
+        // Auto-geocodificar cuando se complete la dirección
+        let geocodeTimeout;
+        document.getElementById('address').addEventListener('input', function() {
+            clearTimeout(geocodeTimeout);
+            geocodeTimeout = setTimeout(() => {
+                if (this.value.length > 10 && document.getElementById('city').value) {
+                    geocodeAddress();
+                }
+            }, 1000);
+        });
+
+        document.getElementById('city').addEventListener('change', function() {
+            if (document.getElementById('address').value) {
+                geocodeAddress();
+            }
+        });
+
+        // Envío del formulario
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            if (!validateStep(3)) {
+                e.preventDefault();
+                return;
+            }
+
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando negocio...';
+            document.getElementById('submitBtn').disabled = true;
+        });
+
+        // Validar email único
+        let emailTimeout;
+        document.getElementById('owner_email').addEventListener('input', function() {
+            clearTimeout(emailTimeout);
+            emailTimeout = setTimeout(() => {
+                checkEmailExists(this.value);
+            }, 500);
+        });
+
+        async function checkEmailExists(email) {
+            if (!email || !email.includes('@')) return;
+
+            try {
+                const response = await fetch(`/api/check-email?email=${encodeURIComponent(email)}`);
+                const data = await response.json();
+                
+                const emailInput = document.getElementById('owner_email');
+                if (data.exists) {
+                    emailInput.classList.add('is-invalid');
+                    emailInput.setCustomValidity('Este email ya está registrado');
+                } else {
+                    emailInput.classList.remove('is-invalid');
+                    emailInput.setCustomValidity('');
+                }
+            } catch (error) {
+                console.error('Error checking email:', error);
+            }
+        }
+    </script>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+                {% for category, message in messages %}
+                    <div class="toast show" role="alert">
+                        <div class="toast-header">
+                            <strong class="me-auto">
+                                {% if category == 'success' %}
+                                    <i class="fas fa-check-circle text-success"></i> Éxito
+                                {% elif category == 'error' %}
+                                    <i class="fas fa-exclamation-circle text-danger"></i> Error
+                                {% else %}
+                                    <i class="fas fa-info-circle text-info"></i> Información
+                                {% endif %}
+                            </strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">{{ message }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

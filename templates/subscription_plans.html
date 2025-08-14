@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planes de Suscripción - Elegance Nails SaaS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .pricing-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .pricing-card.featured {
+            border-color: #007bff;
+            position: relative;
+        }
+        
+        .featured-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .price-amount {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .price-period {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-included {
+            color: #28a745;
+        }
+        
+        .feature-not-included {
+            color: #dc3545;
+        }
+        
+        .btn-upgrade {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-upgrade:hover {
+            background: linear-gradient(45deg, #0056b3, #004085);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
+                <i class="fas fa-gem text-primary me-2"></i>Elegance Nails SaaS
+            </a>
+            <div class="navbar-nav ms-auto">
+                {% if current_user_business %}
+                    <a class="nav-link" href="{{ url_for('dashboard') }}">
+                        <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                    </a>
+                    <a class="nav-link" href="{{ url_for('logout') }}">
+                        <i class="fas fa-sign-out-alt me-1"></i>Salir
+                    </a>
+                {% else %}
+                    <a class="nav-link" href="{{ url_for('login') }}">
+                        <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="bg-primary text-white py-5">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">Planes de Suscripción</h1>
+            <p class="lead mb-0">Elige el plan perfecto para hacer crecer tu negocio</p>
+        </div>
+    </section>
+
+    <!-- Pricing Plans -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4">
+                
+                <!-- Plan Gratuito -->
+                <div class="col-lg-4">
+                    <div class="card pricing-card h-100">
+                        <div class="card-body text-center p-4">
+                            <h3 class="card-title text-primary mb-3">Plan Gratuito</h3>
+                            <div class="mb-4">
+                                <span class="price-amount">$0</span>
+                                <span class="price-period">/mes</span>
+                            </div>
+                            <p class="text-muted mb-4">Perfecto para comenzar tu negocio</p>
+                            
+                            <ul class="feature-list text-start mb-4">
+                                <li><i class="fas fa-check feature-included me-2"></i>Hasta 2 empleados</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Máximo 10 servicios</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>50 citas por mes</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>100 MB de almacenamiento</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Calendario básico</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Gestión de clientes</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Reportes básicos</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Aparece en el mapa</li>
+                                <li><i class="fas fa-times feature-not-included me-2"></i>Reservas online</li>
+                                <li><i class="fas fa-times feature-not-included me-2"></i>Analytics avanzados</li>
+                                <li><i class="fas fa-times feature-not-included me-2"></i>Branding personalizado</li>
+                            </ul>
+                            
+                            {% if current_user_business and current_user_business.plan_slug == 'free' %}
+                                <button class="btn btn-outline-primary w-100" disabled>
+                                    <i class="fas fa-check me-2"></i>Plan Actual
+                                </button>
+                            {% else %}
+                                <button class="btn btn-primary w-100" onclick="selectPlan('free')">
+                                    <i class="fas fa-rocket me-2"></i>Comenzar Gratis
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Premium (Destacado) -->
+                <div class="col-lg-4">
+                    <div class="card pricing-card featured h-100">
+                        <div class="featured-badge">
+                            <i class="fas fa-star me-1"></i>Más Popular
+                        </div>
+                        <div class="card-body text-center p-4">
+                            <h3 class="card-title text-primary mb-3">Plan Premium</h3>
+                            <div class="mb-4">
+                                <span class="price-amount">$299</span>
+                                <span class="price-period">/mes</span>
+                            </div>
+                            <p class="text-muted mb-4">Para negocios en crecimiento</p>
+                            
+                            <ul class="feature-list text-start mb-4">
+                                <li><i class="fas fa-check feature-included me-2"></i>Hasta 10 empleados</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Máximo 50 servicios</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>500 citas por mes</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>1 GB de almacenamiento</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Reservas online</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Analytics avanzados</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Notificaciones email/SMS</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Soporte prioritario</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Marcador premium en mapa</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Hasta 10 fotos en galería</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>API de integración</li>
+                            </ul>
+                            
+                            <div class="mb-3">
+                                <small class="text-success">
+                                    <i class="fas fa-gift me-1"></i>14 días de prueba gratis
+                                </small>
+                            </div>
+                            
+                            {% if current_user_business and current_user_business.plan_slug == 'premium' %}
+                                <button class="btn btn-outline-primary w-100" disabled>
+                                    <i class="fas fa-check me-2"></i>Plan Actual
+                                </button>
+                            {% else %}
+                                <button class="btn btn-upgrade btn-primary w-100" onclick="selectPlan('premium')">
+                                    <i class="fas fa-crown me-2"></i>Comenzar Prueba
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Empresarial -->
+                <div class="col-lg-4">
+                    <div class="card pricing-card h-100">
+                        <div class="card-body text-center p-4">
+                            <h3 class="card-title text-primary mb-3">Plan Empresarial</h3>
+                            <div class="mb-4">
+                                <span class="price-amount">$599</span>
+                                <span class="price-period">/mes</span>
+                            </div>
+                            <p class="text-muted mb-4">Para grandes cadenas y franquicias</p>
+                            
+                            <ul class="feature-list text-start mb-4">
+                                <li><i class="fas fa-check feature-included me-2"></i>Empleados ilimitados</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Servicios ilimitados</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Citas ilimitadas</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>5 GB de almacenamiento</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Todo del plan Premium</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Branding personalizado</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Múltiples ubicaciones</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Herramientas de marketing</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Soporte dedicado</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Marcador personalizado</li>
+                                <li><i class="fas fa-check feature-included me-2"></i>Listado destacado</li>
+                            </ul>
+                            
+                            <div class="mb-3">
+                                <small class="text-success">
+                                    <i class="fas fa-phone me-1"></i>Consultoría personalizada
+                                </small>
+                            </div>
+                            
+                            <button class="btn btn-outline-primary w-100" onclick="contactSales()">
+                                <i class="fas fa-phone me-2"></i>Contactar Ventas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="bg-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="text-center mb-5">Preguntas Frecuentes</h2>
+                    
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq1">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                    ¿Puedo cambiar de plan en cualquier momento?
+                                </button>
+                            </h2>
+                            <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Sí, puedes actualizar o degradar tu plan en cualquier momento. Los cambios se aplicarán en tu próximo ciclo de facturación.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                    ¿Qué sucede si excedo mis límites?
+                                </button>
+                            </h2>
+                            <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Te notificaremos cuando te acerques a tus límites. Si los excedes, puedes actualizar tu plan o esperar al siguiente periodo de facturación.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq3">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                    ¿Hay costos de instalación?
+                                </button>
+                            </h2>
+                            <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    No, no hay costos de instalación. Puedes comenzar inmediatamente después de registrarte.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function selectPlan(planSlug) {
+            {% if current_user_business %}
+                // Usuario ya logueado, proceder con upgrade
+                if (confirm('¿Estás seguro de que quieres cambiar a este plan?')) {
+                    window.location.href = `/subscriptions/upgrade?plan=${planSlug}`;
+                }
+            {% else %}
+                // Redirigir a registro con plan preseleccionado
+                window.location.href = `/registro-negocio?plan=${planSlug}`;
+            {% endif %}
+        }
+        
+        function contactSales() {
+            window.open('mailto:ventas@elegancenails.com?subject=Consulta Plan Empresarial', '_blank');
+        }
+    </script>
+</body>
+</html>

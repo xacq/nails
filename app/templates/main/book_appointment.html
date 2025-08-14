@@ -1,0 +1,84 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Reservar Cita - Elegance Nails{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <h1 class="h2 mb-3">
+                    <i class="fas fa-calendar-plus me-2 text-primary"></i>Reservar Cita
+                </h1>
+                <p class="text-muted">¡Estás a un paso de reservar tu cita con nosotros!</p>
+            </div>
+            
+            {% if current_user.is_authenticated %}
+            <!-- Usuario autenticado - Redirigir al formulario completo -->
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                    <h4>¡Perfecto!</h4>
+                    <p class="text-muted mb-4">Ya tienes una cuenta con nosotros. Te redirigiremos al formulario de reserva completo.</p>
+                    <a href="{{ url_for('appointments.create_appointment') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-arrow-right me-2"></i>Continuar con la Reserva
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <!-- Usuario no autenticado - Opciones -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                            <h4 class="h5">¿Nuevo Cliente?</h4>
+                            <p class="text-muted mb-4">Crea tu cuenta y disfruta de todos los beneficios de ser parte de la familia Elegance Nails.</p>
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-primary w-100">
+                                <i class="fas fa-user-plus me-1"></i>Crear Cuenta
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-sign-in-alt fa-3x text-success mb-3"></i>
+                            <h4 class="h5">¿Ya tienes cuenta?</h4>
+                            <p class="text-muted mb-4">Inicia sesión para acceder a tu historial de citas y reservar fácilmente.</p>
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-success w-100">
+                                <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Alternativa: Llamar por teléfono -->
+            <div class="card mt-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        <i class="fas fa-phone me-2"></i>¿Prefieres reservar por teléfono?
+                    </h5>
+                    <p class="text-muted">Nuestro equipo estará encantado de ayudarte a reservar tu cita.</p>
+                    <a href="tel:+1234567890" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-phone me-2"></i>Llamar Ahora: +1 (234) 567-8900
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-redirección para usuarios autenticados
+document.addEventListener('DOMContentLoaded', function() {
+    {% if current_user.is_authenticated %}
+    setTimeout(function() {
+        window.location.href = "{{ url_for('appointments.create_appointment') }}";
+    }, 3000);
+    {% endif %}
+});
+</script>
+{% endblock %}

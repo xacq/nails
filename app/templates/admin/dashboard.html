@@ -1,0 +1,260 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Panel de Administración - Elegance Nails{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="fas fa-tachometer-alt me-2"></i>Panel de Administración
+            </h1>
+        </div>
+    </div>
+
+    <!-- Estadísticas principales -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Citas Hoy</h5>
+                            <h2 class="mb-0">{{ stats.appointments_today }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-day fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Ingresos del Mes</h5>
+                            <h2 class="mb-0">${{ "%.0f"|format(stats.monthly_revenue) }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-dollar-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Clientes Activos</h5>
+                            <h2 class="mb-0">{{ stats.active_clients }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Servicios Activos</h5>
+                            <h2 class="mb-0">{{ stats.active_services }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-spa fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones rápidas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Acciones Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('admin.appointments') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-calendar-alt me-2"></i>Gestionar Citas
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('admin.services') }}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-spa me-2"></i>Gestionar Servicios
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('admin.users') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-users me-2"></i>Gestionar Usuarios
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('admin.reports') }}" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-chart-bar me-2"></i>Ver Reportes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Citas recientes -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Citas Recientes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Servicio</th>
+                                    <th>Fecha/Hora</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in recent_appointments %}
+                                <tr>
+                                    <td>{{ appointment.user.full_name }}</td>
+                                    <td>{{ appointment.service.name }}</td>
+                                    <td>
+                                        {{ appointment.date.strftime('%d/%m/%Y') }}<br>
+                                        <small class="text-muted">{{ appointment.time.strftime('%H:%M') }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if appointment.status == 'confirmed' else 'warning' if appointment.status == 'pending' else 'info' if appointment.status == 'completed' else 'danger' }}">
+                                            {{ appointment.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('admin.appointment_detail', id=appointment.id) }}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if appointment.status == 'pending' %}
+                                            <button class="btn btn-outline-success btn-sm" 
+                                                    onclick="confirmAppointment({{ appointment.id }})">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">No hay citas recientes</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actividad reciente -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Actividad Reciente</h5>
+                </div>
+                <div class="card-body">
+                    <div class="activity-timeline">
+                        {% for activity in recent_activity %}
+                        <div class="activity-item">
+                            <div class="activity-icon bg-{{ activity.type }}">
+                                <i class="fas fa-{{ activity.icon }}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p class="mb-1">{{ activity.description }}</p>
+                                <small class="text-muted">{{ activity.created_at.strftime('%H:%M') }}</small>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">No hay actividad reciente</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.activity-timeline {
+    position: relative;
+}
+
+.activity-item {
+    display: flex;
+    align-items-start;
+    margin-bottom: 1rem;
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.bg-appointment { background-color: #007bff; }
+.bg-payment { background-color: #28a745; }
+.bg-user { background-color: #17a2b8; }
+.bg-service { background-color: #ffc107; color: #000; }
+</style>
+
+<script>
+async function confirmAppointment(appointmentId) {
+    try {
+        const response = await fetch(`{{ url_for('api.confirm_appointment', id=0) }}`.replace('0', appointmentId), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Error al confirmar la cita.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al confirmar la cita.');
+    }
+}
+</script>
+{% endblock %}

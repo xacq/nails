@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - {{ business.name }} | Elegance Nails</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" rel="preload" as="script">
+    <style>
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .sidebar-collapsed {
+            width: 70px;
+        }
+        .main-content {
+            margin-left: 250px;
+            transition: all 0.3s ease;
+        }
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            border-radius: 8px;
+            margin: 2px 0;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+            border-left: 4px solid;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card.primary {
+            border-left-color: #667eea;
+        }
+        .stat-card.success {
+            border-left-color: #28a745;
+        }
+        .stat-card.warning {
+            border-left-color: #ffc107;
+        }
+        .stat-card.info {
+            border-left-color: #17a2b8;
+        }
+        .progress-custom {
+            height: 8px;
+            border-radius: 10px;
+        }
+        .btn-toggle-sidebar {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+        .subscription-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .btn-toggle-sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <button class="btn-toggle-sidebar" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="p-3">
+            <!-- Logo y Negocio -->
+            <div class="text-center mb-4">
+                {% if business.logo_url %}
+                    <img src="{{ business.logo_url }}" alt="Logo" class="rounded-circle mb-2" 
+                         style="width: 60px; height: 60px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
+                         style="width: 60px; height: 60px;">
+                        <i class="fas fa-store text-primary fa-2x"></i>
+                    </div>
+                {% endif %}
+                <h6 class="text-white mb-1 sidebar-text">{{ business.name }}</h6>
+                <span class="subscription-badge bg-{{ 'success' if business.plan_slug == 'premium' else 'light' }} 
+                            text-{{ 'white' if business.plan_slug == 'premium' else 'dark' }} sidebar-text">
+                    {{ business.plan_name or 'Sin Plan' }}
+                </span>
+            </div>
+
+            <!-- Navegación -->
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="sidebar-text ms-2">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('appointments') }}">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span class="sidebar-text ms-2">Citas</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('services') }}">
+                        <i class="fas fa-cut"></i>
+                        <span class="sidebar-text ms-2">Servicios</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('employees') }}">
+                        <i class="fas fa-users"></i>
+                        <span class="sidebar-text ms-2">Empleados</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showClientsModal()">
+                        <i class="fas fa-user-friends"></i>
+                        <span class="sidebar-text ms-2">Clientes</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showReportsModal()">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="sidebar-text ms-2">Reportes</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('subscription_info') }}">
+                        <i class="fas fa-crown"></i>
+                        <span class="sidebar-text ms-2">Suscripción</span>
+                    </a>
+                </li>
+                
+                <hr class="text-white-50">
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showSettingsModal()">
+                        <i class="fas fa-cog"></i>
+                        <span class="sidebar-text ms-2">Configuración</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('business_map') }}" target="_blank">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span class="sidebar-text ms-2">Ver en Mapa</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="sidebar-text ms-2">Cerrar Sesión</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <div class="bg-white shadow-sm px-4 py-3 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0">Dashboard</h4>
+                    <small class="text-muted">Resumen de tu negocio</small>
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="me-3">
+                        <i class="fas fa-calendar"></i>
+                        {{ datetime.now().strftime('%d de %B, %Y') }}
+                    </span>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i>
+                            {{ session.user_name }}
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="showProfileModal()">
+                                <i class="fas fa-user-edit"></i> Mi Perfil
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-4">
+            <!-- Estadísticas Principales -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card primary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="fw-bold text-primary mb-1">{{ today_appointments }}</h3>
+                                <p class="text-muted mb-0">Citas Hoy</p>
+                            </div>
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                                <i class="fas fa-calendar-check text-primary fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-success">
+                                <i class="fas fa-arrow-up"></i> +12% vs ayer
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card success">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="fw-bold text-success mb-1">{{ active_services }}</h3>
+                                <p class="text-muted mb-0">Servicios Activos</p>
+                            </div>
+                            <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                                <i class="fas fa-cut text-success fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ active_services }}/{{ limits.max_services }}</small>
+                                <small class="text-muted">
+                                    {{ ((active_services / limits.max_services * 100) if limits.max_services > 0 else 0)|round }}%
+                                </small>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar bg-success" 
+                                     style="width: {{ ((active_services / limits.max_services * 100) if limits.max_services > 0 else 0) }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="fw-bold text-warning mb-1">{{ active_employees }}</h3>
+                                <p class="text-muted mb-0">Empleados</p>
+                            </div>
+                            <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                                <i class="fas fa-users text-warning fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ active_employees }}/{{ limits.max_employees }}</small>
+                                <small class="text-muted">
+                                    {{ ((active_employees / limits.max_employees * 100) if limits.max_employees > 0 else 0)|round }}%
+                                </small>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar bg-warning" 
+                                     style="width: {{ ((active_employees / limits.max_employees * 100) if limits.max_employees > 0 else 0) }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="fw-bold text-info mb-1">{{ business.rating_average or 0 }}<small class="fs-6">/5</small></h3>
+                                <p class="text-muted mb-0">Calificación</p>
+                            </div>
+                            <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                                <i class="fas fa-star text-info fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                {{ business.total_reviews or 0 }} reseñas
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido Principal -->
+            <div class="row">
+                <!-- Próximas Citas -->
+                <div class="col-lg-8 mb-4">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-calendar-alt text-primary"></i>
+                                Próximas Citas
+                            </h5>
+                            <a href="{{ url_for('appointments') }}" class="btn btn-outline-primary btn-sm">
+                                Ver Todas
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div id="appointmentsList">
+                                <!-- Se cargará via AJAX -->
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Cargando citas...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actividad Reciente -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0">
+                                <i class="fas fa-clock text-info"></i>
+                                Actividad Reciente
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-success"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Nueva cita agendada</h6>
+                                        <p class="small text-muted mb-0">Ana García - Manicure</p>
+                                        <small class="text-muted">Hace 5 minutos</small>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-info"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Pago recibido</h6>
+                                        <p class="small text-muted mb-0">$50.00 - Maria López</p>
+                                        <small class="text-muted">Hace 1 hora</small>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-warning"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Nueva reseña</h6>
+                                        <p class="small text-muted mb-0">⭐⭐⭐⭐⭐ "Excelente servicio"</p>
+                                        <small class="text-muted">Hace 2 horas</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos y Reportes -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar text-primary"></i>
+                                Ventas del Mes
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-pie text-success"></i>
+                                Servicios Más Populares
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="servicesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if business.subscription_status != 'ACTIVE' or business.plan_slug == 'free' %}
+            <!-- Call to Action para Upgrade -->
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card bg-gradient-primary text-white border-0">
+                        <div class="card-body text-center py-4">
+                            <h4 class="fw-bold mb-3">
+                                <i class="fas fa-rocket"></i>
+                                ¡Potencia tu Negocio!
+                            </h4>
+                            <p class="lead mb-4">
+                                Desbloquea funciones premium: analytics avanzados, reservas online, 
+                                soporte prioritario y más.
+                            </p>
+                            <a href="{{ url_for('subscription_info') }}" class="btn btn-light btn-lg">
+                                <i class="fas fa-crown"></i>
+                                Ver Planes Premium
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarTexts = document.querySelectorAll('.sidebar-text');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('expanded');
+            
+            sidebarTexts.forEach(text => {
+                text.style.display = sidebar.classList.contains('sidebar-collapsed') ? 'none' : 'inline';
+            });
+        }
+
+        // Load upcoming appointments
+        async function loadUpcomingAppointments() {
+            try {
+                const response = await fetch('/api/appointments/upcoming');
+                const data = await response.json();
+                
+                const container = document.getElementById('appointmentsList');
+                
+                if (data.success && data.appointments.length > 0) {
+                    container.innerHTML = data.appointments.map(appointment => `
+                        <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
+                            <div class="flex-shrink-0">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width: 45px; height: 45px;">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">${appointment.client_name}</h6>
+                                <p class="mb-1 text-muted">${appointment.service_name}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar"></i>
+                                    ${new Date(appointment.appointment_date).toLocaleDateString('es-ES', {
+                                        weekday: 'short',
+                                        day: 'numeric',
+                                        month: 'short',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </small>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <span class="badge bg-primary">
+                                    ${appointment.status}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                            <p>No hay citas próximas</p>
+                            <a href="{{ url_for('appointments') }}" class="btn btn-primary btn-sm">
+                                Agendar Nueva Cita
+                            </a>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                document.getElementById('appointmentsList').innerHTML = `
+                    <div class="text-center text-muted">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error cargando citas
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize Charts
+        function initCharts() {
+            // Sales Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Ventas ($)',
+                        data: [1200, 1900, 3000, 2500, 2200, 3000],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Services Chart
+            const servicesCtx = document.getElementById('servicesChart').getContext('2d');
+            new Chart(servicesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Manicure', 'Pedicure', 'Uñas Gel', 'Nail Art', 'Otros'],
+                    datasets: [{
+                        data: [30, 25, 20, 15, 10],
+                        backgroundColor: [
+                            '#667eea',
+                            '#28a745',
+                            '#ffc107',
+                            '#17a2b8',
+                            '#6c757d'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Modal functions (placeholder)
+        function showClientsModal() {
+            alert('Función de clientes en desarrollo');
+        }
+
+        function showReportsModal() {
+            alert('Función de reportes en desarrollo');
+        }
+
+        function showSettingsModal() {
+            alert('Función de configuración en desarrollo');
+        }
+
+        function showProfileModal() {
+            alert('Función de perfil en desarrollo');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUpcomingAppointments();
+            initCharts();
+        });
+
+        // Timeline styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .timeline {
+                position: relative;
+                padding-left: 30px;
+            }
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 9px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: #e9ecef;
+            }
+            .timeline-item {
+                position: relative;
+                margin-bottom: 20px;
+            }
+            .timeline-marker {
+                position: absolute;
+                left: -25px;
+                top: 5px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                border: 3px solid #fff;
+                box-shadow: 0 0 0 2px #e9ecef;
+            }
+            .timeline-content {
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 8px;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+                {% for category, message in messages %}
+                    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">
+                                {% if category == 'success' %}
+                                    <i class="fas fa-check-circle text-success"></i> Éxito
+                                {% elif category == 'error' %}
+                                    <i class="fas fa-exclamation-circle text-danger"></i> Error
+                                {% else %}
+                                    <i class="fas fa-info-circle text-info"></i> Información
+                                {% endif %}
+                            </strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">{{ message }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

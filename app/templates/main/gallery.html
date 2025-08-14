@@ -1,0 +1,72 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Galería - Elegance Nails{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-gradient-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-images me-3"></i>Nuestra Galería
+                </h1>
+                <p class="lead mb-4">
+                    Explora algunos de nuestros trabajos más destacados. 
+                    Cada diseño refleja nuestro compromiso con la calidad y la creatividad.
+                </p>
+            </div>
+            <div class="col-lg-4 text-center">
+                <i class="fas fa-camera fa-5x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <!-- Próximamente -->
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-camera fa-5x text-muted mb-4"></i>
+                <h3 class="h4 text-muted mb-3">Galería en Construcción</h3>
+                <p class="text-muted mb-4">
+                    Estamos preparando una hermosa galería con nuestros mejores trabajos. 
+                    ¡Muy pronto podrás ver todas nuestras creaciones!
+                </p>
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Mientras tanto...</h6>
+                            <p class="mb-0">
+                                Puedes conocer nuestros servicios y reservar tu cita. 
+                                ¡Te esperamos para crear algo hermoso juntos!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{{ url_for('main.services') }}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-spa me-2"></i>Ver Servicios
+                    </a>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('appointments.create_appointment') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-calendar-plus me-2"></i>Reservar Cita
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Registrarse
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</style>
+{% endblock %}

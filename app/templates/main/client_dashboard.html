@@ -1,0 +1,317 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Mi Panel - Elegance Nails{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="fas fa-user-circle me-2"></i>¡Bienvenido/a, {{ current_user.first_name }}!
+            </h1>
+        </div>
+    </div>
+
+    <!-- Estadísticas del cliente -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Citas Realizadas</h5>
+                            <h2 class="mb-0">{{ total_appointments }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Puntos de Lealtad</h5>
+                            <h2 class="mb-0">{{ loyalty_points or 0 }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-star fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Próximas Citas</h5>
+                            <h2 class="mb-0">{{ upcoming_appointments|length }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Acciones Rápidas</h5>
+                    <a href="{{ url_for('appointments.create_appointment') }}" class="btn btn-light btn-sm mt-2">
+                        <i class="fas fa-plus me-1"></i>Nueva Cita
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Próximas Citas -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Próximas Citas
+                    </h5>
+                    <a href="{{ url_for('appointments.create_appointment') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus me-1"></i>Reservar
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_appointments %}
+                        {% for appointment in upcoming_appointments %}
+                        <div class="appointment-item border-bottom pb-3 mb-3">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="mb-1">
+                                        {% for service in appointment.services %}
+                                            {{ service.name }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </h6>
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-calendar-day me-1"></i>
+                                        {{ appointment.appointment_date.strftime('%d/%m/%Y') }}
+                                    </p>
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ appointment.start_time.strftime('%H:%M') }}
+                                    </p>
+                                    {% if appointment.employee %}
+                                    <p class="text-muted mb-0">
+                                        <i class="fas fa-user me-1"></i>
+                                        {{ appointment.employee.first_name }} {{ appointment.employee.last_name }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="badge {% if appointment.status.value == 'confirmed' %}bg-success{% else %}bg-warning{% endif %}">
+                                        {% if appointment.status.value == 'confirmed' %}Confirmada{% else %}Pendiente{% endif %}
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">
+                                        ${{ "%.0f"|format(appointment.total_amount or 0) }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No tienes citas próximas programadas.</p>
+                            <a href="{{ url_for('appointments.create_appointment') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Reservar una Cita
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial Reciente -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Historial Reciente
+                    </h5>
+                    <a href="{{ url_for('appointments.list_appointments') }}" class="btn btn-outline-primary btn-sm">
+                        Ver Todo
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_appointments %}
+                        {% for appointment in recent_appointments %}
+                        <div class="appointment-item border-bottom pb-3 mb-3">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="mb-1">
+                                        {% for service in appointment.services %}
+                                            {{ service.name }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </h6>
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-calendar-day me-1"></i>
+                                        {{ appointment.appointment_date.strftime('%d/%m/%Y') }}
+                                    </p>
+                                    {% if appointment.employee %}
+                                    <p class="text-muted mb-0">
+                                        <i class="fas fa-user me-1"></i>
+                                        {{ appointment.employee.first_name }} {{ appointment.employee.last_name }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="badge bg-success">Completada</span>
+                                    <br>
+                                    <small class="text-muted">
+                                        ${{ "%.0f"|format(appointment.total_amount or 0) }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-spa fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aún no has completado ninguna cita.</p>
+                            <p class="text-muted">¡Es hora de cuidar tus uñas!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Servicios Favoritos y Acceso Rápido -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-spa me-2"></i>Acceso Rápido
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="quick-action">
+                                <a href="{{ url_for('appointments.create_appointment') }}" class="btn btn-outline-primary btn-lg w-100">
+                                    <i class="fas fa-calendar-plus fa-2x d-block mb-2"></i>
+                                    Reservar Cita
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="quick-action">
+                                <a href="{{ url_for('appointments.list_appointments') }}" class="btn btn-outline-info btn-lg w-100">
+                                    <i class="fas fa-list fa-2x d-block mb-2"></i>
+                                    Mis Citas
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="quick-action">
+                                <a href="{{ url_for('main.services') }}" class="btn btn-outline-success btn-lg w-100">
+                                    <i class="fas fa-cut fa-2x d-block mb-2"></i>
+                                    Ver Servicios
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="quick-action">
+                                <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-warning btn-lg w-100">
+                                    <i class="fas fa-user-edit fa-2x d-block mb-2"></i>
+                                    Mi Perfil
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if loyalty_points and loyalty_points > 0 %}
+    <!-- Programa de Lealtad -->
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-gift me-2"></i>Programa de Lealtad
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <p class="mb-2">
+                                <strong>Puntos Actuales:</strong> {{ loyalty_points }} puntos
+                            </p>
+                            <div class="progress mb-2">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: 75%">
+                                </div>
+                            </div>
+                            <small class="text-muted">
+                                ¡Sigue acumulando puntos para obtener recompensas!
+                            </small>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="fas fa-star fa-3x text-warning"></i>
+                            <p class="mt-2 mb-0">
+                                <small>¡Sigue acumulando puntos!</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.appointment-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.quick-action .btn {
+    transition: all 0.3s ease;
+}
+
+.quick-action .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.progress {
+    height: 10px;
+    border-radius: 5px;
+}
+</style>
+{% endblock %}

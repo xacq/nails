@@ -1,0 +1,217 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Mis Citas - Elegance Nails{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>Mis Citas
+                </h1>
+                <a href="{{ url_for('services.list_services') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Nueva Cita
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ url_for('appointments.list_appointments') }}" 
+                           class="btn btn-outline-primary {{ 'active' if not request.args.get('status') else '' }}">
+                            Todas
+                        </a>
+                        <a href="{{ url_for('appointments.list_appointments', status='pending') }}" 
+                           class="btn btn-outline-warning {{ 'active' if request.args.get('status') == 'pending' else '' }}">
+                            Pendientes
+                        </a>
+                        <a href="{{ url_for('appointments.list_appointments', status='confirmed') }}" 
+                           class="btn btn-outline-success {{ 'active' if request.args.get('status') == 'confirmed' else '' }}">
+                            Confirmadas
+                        </a>
+                        <a href="{{ url_for('appointments.list_appointments', status='completed') }}" 
+                           class="btn btn-outline-info {{ 'active' if request.args.get('status') == 'completed' else '' }}">
+                            Completadas
+                        </a>
+                        <a href="{{ url_for('appointments.list_appointments', status='cancelled') }}" 
+                           class="btn btn-outline-danger {{ 'active' if request.args.get('status') == 'cancelled' else '' }}">
+                            Canceladas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de citas -->
+    <div class="row">
+        {% for appointment in appointments %}
+        <div class="col-lg-6 col-xl-4 mb-4">
+            <div class="card appointment-card h-100">
+                <div class="card-header bg-{{ 'success' if appointment.status == 'confirmed' else 'warning' if appointment.status == 'pending' else 'info' if appointment.status == 'completed' else 'danger' }} text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-white text-dark">
+                            {{ appointment.status.title() }}
+                        </span>
+                        <small>{{ appointment.date.strftime('%d/%m/%Y') }}</small>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ appointment.service.name }}</h5>
+                    
+                    <div class="appointment-details">
+                        <div class="detail-item mb-2">
+                            <i class="fas fa-clock text-muted me-2"></i>
+                            <span>{{ appointment.time.strftime('%H:%M') }} ({{ appointment.service.duration }} min)</span>
+                        </div>
+                        
+                        <div class="detail-item mb-2">
+                            <i class="fas fa-user text-muted me-2"></i>
+                            <span>{{ appointment.employee.full_name if appointment.employee else 'Sin asignar' }}</span>
+                        </div>
+                        
+                        <div class="detail-item mb-2">
+                            <i class="fas fa-dollar-sign text-muted me-2"></i>
+                            <span>${{ "%.2f"|format(appointment.service.price) }}</span>
+                        </div>
+                        
+                        {% if appointment.notes %}
+                        <div class="detail-item mb-2">
+                            <i class="fas fa-comment text-muted me-2"></i>
+                            <small class="text-muted">{{ appointment.notes }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        {% if appointment.status == 'pending' or appointment.status == 'confirmed' %}
+                        <div class="btn-group" role="group">
+                            {% if appointment.can_cancel() %}
+                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                    onclick="cancelAppointment({{ appointment.id }})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            {% endif %}
+                            {% if appointment.can_reschedule() %}
+                            <a href="{{ url_for('appointments.reschedule', id=appointment.id) }}" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if appointment.status == 'completed' and not appointment.payment %}
+                        <a href="{{ url_for('appointments.pay', id=appointment.id) }}" 
+                           class="btn btn-success btn-sm">
+                            <i class="fas fa-credit-card me-1"></i>Pagar
+                        </a>
+                        {% elif appointment.payment %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-check me-1"></i>Pagado
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <h5>No tienes citas</h5>
+                    <p class="text-muted">Aún no has reservado ninguna cita con nosotros.</p>
+                    <a href="{{ url_for('services.list_services') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Reservar mi primera cita
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal de confirmación para cancelar -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancelar Cita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas cancelar esta cita?</p>
+                <p class="text-muted small">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, mantener</button>
+                <button type="button" class="btn btn-danger" id="confirmCancel">Sí, cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.appointment-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.appointment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+}
+</style>
+
+<script>
+let appointmentToCancel = null;
+
+function cancelAppointment(appointmentId) {
+    appointmentToCancel = appointmentId;
+    const modal = new bootstrap.Modal(document.getElementById('cancelModal'));
+    modal.show();
+}
+
+document.getElementById('confirmCancel').addEventListener('click', async function() {
+    if (!appointmentToCancel) return;
+    
+    try {
+        const response = await fetch(`{{ url_for('api.cancel_appointment', id=0) }}`.replace('0', appointmentToCancel), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Error al cancelar la cita. Por favor, inténtalo de nuevo.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cancelar la cita. Por favor, inténtalo de nuevo.');
+    }
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('cancelModal'));
+    modal.hide();
+});
+</script>
+{% endblock %}

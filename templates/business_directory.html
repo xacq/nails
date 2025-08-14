@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio de Salones - Elegance Nails SaaS</title>
+    
+    <!-- CSS Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mapbox GL JS CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+    <!-- Mapbox GL JS Geocoder CSS -->
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css">
+    
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --dark-text: #2d3748;
+            --light-text: #718096;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-text);
+        }
+
+        /* Header Styles */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 0;
+        }
+
+        .search-hero {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: -1rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Map Container */
+        .map-section {
+            position: relative;
+            height: 70vh;
+            min-height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        }
+
+        #businessMap {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Business Cards */
+        .business-grid {
+            margin-top: 2rem;
+        }
+
+        .business-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #f1f3f4;
+            position: relative;
+        }
+
+        .business-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            border-color: var(--primary-color);
+        }
+
+        .business-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid #f1f3f4;
+        }
+
+        .business-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .business-type {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .business-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.8rem 0;
+        }
+
+        .stars {
+            color: #ffc107;
+        }
+
+        .business-services {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .service-tag {
+            background: #f8f9fa;
+            color: var(--light-text);
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            border: 1px solid #e9ecef;
+        }
+
+        .business-contact {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .contact-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 1px solid;
+        }
+
+        .contact-btn.primary {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .contact-btn.primary:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: white;
+        }
+
+        .contact-btn.outline {
+            background: transparent;
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .contact-btn.outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .contact-btn.whatsapp {
+            background: #25d366;
+            color: white;
+            border-color: #25d366;
+        }
+
+        .contact-btn.whatsapp:hover {
+            background: #128c7e;
+            border-color: #128c7e;
+            color: white;
+        }
+
+        /* Filter Sidebar */
+        .filters-sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 2rem;
+        }
+
+        .filter-section {
+            margin-bottom: 2rem;
+        }
+
+        .filter-title {
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-select, .form-control {
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        /* Map Controls */
+        .map-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .map-control-btn {
+            background: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--dark-text);
+        }
+
+        .map-control-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Plan Badges */
+        .plan-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plan-badge.free {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        .plan-badge.premium {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .plan-badge.enterprise {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .map-section {
+                height: 50vh;
+                margin-bottom: 2rem;
+            }
+            
+            .filters-sidebar {
+                margin-bottom: 2rem;
+                position: static;
+            }
+            
+            .business-card {
+                padding: 1rem;
+            }
+            
+            .search-hero {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Loading States */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner-border {
+            color: var(--primary-color);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--light-text);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
+                <i class="fas fa-gem text-primary me-2"></i>Elegance Nails
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('business_map') }}">
+                            <i class="fas fa-map me-1"></i>Mapa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('about') }}">
+                            <i class="fas fa-info-circle me-1"></i>Acerca de
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if 'user_id' in session %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>{{ session.get('business_name', 'Mi Cuenta') }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">
+                                    <i class="fas fa-dashboard me-2"></i>Dashboard
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('subscription_status') }}">
+                                    <i class="fas fa-credit-card me-2"></i>Suscripción
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary ms-2" href="{{ url_for('business_registration') }}">
+                                <i class="fas fa-plus me-1"></i>Registrar Negocio
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="main-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold mb-3">
+                        <i class="fas fa-map-marker-alt me-3"></i>
+                        Encuentra tu Salón Ideal
+                    </h1>
+                    <p class="lead mb-0">
+                        Descubre los mejores salones de belleza, spas y estudios de uñas cerca de ti. 
+                        Reserva tu cita en línea y disfruta de servicios profesionales de calidad.
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-none d-md-block">
+                        <i class="fas fa-spa fa-4x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Hero Section -->
+    <div class="container">
+        <div class="search-hero">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="locationSearch" class="form-label fw-semibold">
+                        <i class="fas fa-location-dot text-primary me-2"></i>¿Dónde estás?
+                    </label>
+                    <input type="text" class="form-control form-control-lg" id="locationSearch" 
+                           placeholder="Ciudad, dirección o código postal">
+                </div>
+                <div class="col-md-3">
+                    <label for="serviceType" class="form-label fw-semibold">
+                        <i class="fas fa-cut text-primary me-2"></i>Tipo de Servicio
+                    </label>
+                    <select class="form-select form-select-lg" id="serviceType">
+                        <option value="">Todos los servicios</option>
+                        <option value="manicure">Manicure</option>
+                        <option value="pedicure">Pedicure</option>
+                        <option value="nail-art">Nail Art</option>
+                        <option value="extensiones">Extensiones</option>
+                        <option value="tratamientos">Tratamientos</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="radiusSearch" class="form-label fw-semibold">
+                        <i class="fas fa-circle-dot text-primary me-2"></i>Radio de búsqueda
+                    </label>
+                    <select class="form-select form-select-lg" id="radiusSearch">
+                        <option value="5">5 km</option>
+                        <option value="10" selected>10 km</option>
+                        <option value="25">25 km</option>
+                        <option value="50">50 km</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary btn-lg w-100" onclick="searchBusinesses()">
+                        <i class="fas fa-search me-2"></i>Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="row">
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3">
+                <div class="filters-sidebar">
+                    <h5 class="filter-title">
+                        <i class="fas fa-sliders-h text-primary"></i>
+                        Filtros
+                    </h5>
+                    
+                    <div class="filter-section">
+                        <h6 class="filter-title">Tipo de Negocio</h6>
+                        <select class="form-select" id="businessTypeFilter">
+                            <option value="">Todos</option>
+                            <option value="NAIL_SALON">Salón de Uñas</option>
+                            <option value="BEAUTY_SALON">Salón de Belleza</option>
+                            <option value="SPA">Spa</option>
+                            <option value="BARBERSHOP">Barbería</option>
+                            <option value="STUDIO">Estudio</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-section">
+                        <h6 class="filter-title">Calificación</h6>
+                        <select class="form-select" id="ratingFilter">
+                            <option value="">Cualquier calificación</option>
+                            <option value="4.5">4.5+ estrellas</option>
+                            <option value="4.0">4.0+ estrellas</option>
+                            <option value="3.5">3.5+ estrellas</option>
+                            <option value="3.0">3.0+ estrellas</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-section">
+                        <h6 class="filter-title">Precio</h6>
+                        <select class="form-select" id="priceFilter">
+                            <option value="">Cualquier precio</option>
+                            <option value="0-500">$0 - $500</option>
+                            <option value="500-1000">$500 - $1000</option>
+                            <option value="1000-2000">$1000 - $2000</option>
+                            <option value="2000+">$2000+</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-section">
+                        <h6 class="filter-title">Características</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="onlineBooking">
+                            <label class="form-check-label" for="onlineBooking">
+                                Reserva en línea
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="homeService">
+                            <label class="form-check-label" for="homeService">
+                                Servicio a domicilio
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="promotions">
+                            <label class="form-check-label" for="promotions">
+                                Promociones activas
+                            </label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-outline-primary w-100" onclick="clearFilters()">
+                        <i class="fas fa-refresh me-2"></i>Limpiar Filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- Map and Business Listings -->
+            <div class="col-lg-9">
+                <!-- Map Section -->
+                <div class="map-section mb-4">
+                    <div id="businessMap"></div>
+                    <div class="map-controls">
+                        <button class="map-control-btn" onclick="getUserLocation()" title="Mi ubicación">
+                            <i class="fas fa-location-arrow"></i>
+                        </button>
+                        <button class="map-control-btn" onclick="toggleMapView()" title="Cambiar vista">
+                            <i class="fas fa-layer-group"></i>
+                        </button>
+                        <button class="map-control-btn" onclick="centerMap()" title="Centrar mapa">
+                            <i class="fas fa-compress-arrows-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Business Grid -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0">
+                        <span id="businessCount">Cargando...</span> salones encontrados
+                    </h4>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="toggleView('grid')" id="gridViewBtn">
+                            <i class="fas fa-th-large"></i> Cuadrícula
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="toggleView('list')" id="listViewBtn">
+                            <i class="fas fa-list"></i> Lista
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="loading-spinner">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+
+                <!-- Business Cards Container -->
+                <div id="businessContainer" class="business-grid row" style="display: none;">
+                    <!-- Business cards will be dynamically inserted here -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <h5>No se encontraron salones</h5>
+                    <p>Intenta ajustar tus filtros de búsqueda o ampliar el radio de búsqueda.</p>
+                    <button class="btn btn-primary" onclick="clearFilters()">
+                        <i class="fas fa-refresh me-2"></i>Limpiar filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Mapbox GL JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+    <!-- Mapbox GL JS Geocoder -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+
+    <script>
+        // Configurar token de Mapbox desde el backend
+        let mapboxToken = '{{ mapbox_token }}';
+        if (!mapboxToken || mapboxToken === 'None') {
+            // Fallback al token hardcodeado si no está disponible desde el backend
+            mapboxToken = 'pk.eyJ1IjoiZGF2ZWJhc3RpZGFzIiwiYSI6ImNtMGE4dDAxZDFhYTgyb3B1YmdvaXB2cWQifQ.fGx1Tf4FA3ix04sfUu7xCg';
+        }
+        mapboxgl.accessToken = mapboxToken;
+
+        class BusinessDirectory {
+            constructor() {
+                this.map = null;
+                this.markers = {};
+                this.businesses = [];
+                this.userLocation = null;
+                this.currentView = 'grid';
+                this.markersOnMap = [];
+                
+                this.initializeMap();
+                this.loadBusinesses();
+                this.setupEventListeners();
+            }
+
+            initializeMap() {
+                // Inicializar mapa Mapbox con coordenadas de Ciudad de México
+                this.map = new mapboxgl.Map({
+                    container: 'businessMap',
+                    style: 'mapbox://styles/mapbox/streets-v12', // Estilo del mapa
+                    center: [-99.1332, 19.4326], // [lng, lat] - Ciudad de México
+                    zoom: 11,
+                    pitch: 45, // Ángulo de inclinación para vista 3D
+                    bearing: 0
+                });
+
+                // Agregar controles de navegación
+                this.map.addControl(new mapboxgl.NavigationControl());
+                
+                // Agregar control de geolocalización
+                this.map.addControl(new mapboxgl.GeolocateControl({
+                    positionOptions: {
+                        enableHighAccuracy: true
+                    },
+                    trackUserLocation: true,
+                    showUserHeading: true
+                }));
+
+                // Agregar geocoder (buscador de lugares)
+                const geocoder = new MapboxGeocoder({
+                    accessToken: mapboxgl.accessToken,
+                    mapboxgl: mapboxgl,
+                    placeholder: 'Buscar ubicación...',
+                    countries: 'mx' // Restringir a México
+                });
+                
+                this.map.addControl(geocoder);
+
+                // Evento cuando el mapa se mueve
+                this.map.on('moveend', () => {
+                    this.loadBusinesses();
+                });
+            }
+
+            async loadBusinesses() {
+                try {
+                    this.showLoading();
+                    
+                    const center = this.map.getCenter();
+                    const radius = document.getElementById('radiusSearch').value;
+                    const serviceType = document.getElementById('serviceType').value;
+                    const location = document.getElementById('locationSearch').value;
+                    
+                    const params = new URLSearchParams({
+                        lat: center.lat,
+                        lng: center.lng,
+                        radius: radius
+                    });
+
+                    // Agregar filtros adicionales si están disponibles
+                    if (serviceType) {
+                        params.append('type', serviceType);
+                    }
+                    
+                    if (location) {
+                        params.append('q', location);
+                    }
+
+                    const response = await fetch(`/api/businesses/search?${params}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.businesses = data.businesses;
+                        this.updateMap();
+                        this.updateBusinessGrid();
+                        this.updateBusinessCount();
+                    } else {
+                        console.error('Error loading businesses:', data.message);
+                        this.showEmptyState();
+                    }
+                } catch (error) {
+                    console.error('Error in loadBusinesses:', error);
+                    this.showEmptyState();
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            updateMap() {
+                // Limpiar marcadores existentes
+                this.clearMarkers();
+
+                // Crear fuente de datos GeoJSON para los negocios
+                const geojsonData = {
+                    type: 'FeatureCollection',
+                    features: this.businesses.map(business => ({
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [business.longitude, business.latitude]
+                        },
+                        properties: {
+                            id: business.id,
+                            name: business.name,
+                            business_type: business.business_type,
+                            rating: business.rating_average || 0,
+                            reviews: business.total_reviews || 0,
+                            address: business.address,
+                            phone: business.phone,
+                            plan_type: business.map_marker_type || 'free'
+                        }
+                    }))
+                };
+
+                // Agregar fuente de datos al mapa
+                if (this.map.getSource('businesses')) {
+                    this.map.getSource('businesses').setData(geojsonData);
+                } else {
+                    this.map.addSource('businesses', {
+                        type: 'geojson',
+                        data: geojsonData,
+                        cluster: true,
+                        clusterMaxZoom: 14,
+                        clusterRadius: 50
+                    });
+
+                    // Agregar capa para clusters
+                    this.map.addLayer({
+                        id: 'clusters',
+                        type: 'circle',
+                        source: 'businesses',
+                        filter: ['has', 'point_count'],
+                        paint: {
+                            'circle-color': [
+                                'step',
+                                ['get', 'point_count'],
+                                '#51bbd6',
+                                100,
+                                '#f1f075',
+                                750,
+                                '#f28cb1'
+                            ],
+                            'circle-radius': [
+                                'step',
+                                ['get', 'point_count'],
+                                20,
+                                100,
+                                30,
+                                750,
+                                40
+                            ]
+                        }
+                    });
+
+                    // Agregar texto a clusters
+                    this.map.addLayer({
+                        id: 'cluster-count',
+                        type: 'symbol',
+                        source: 'businesses',
+                        filter: ['has', 'point_count'],
+                        layout: {
+                            'text-field': '{point_count_abbreviated}',
+                            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+                            'text-size': 12
+                        }
+                    });
+
+                    // Agregar capa para negocios individuales
+                    this.map.addLayer({
+                        id: 'unclustered-point',
+                        type: 'circle',
+                        source: 'businesses',
+                        filter: ['!', ['has', 'point_count']],
+                        paint: {
+                            'circle-color': [
+                                'match',
+                                ['get', 'plan_type'],
+                                'premium', '#6a1b9a',
+                                'enterprise', '#43a047',
+                                '#e75480' // free (default)
+                            ],
+                            'circle-radius': 8,
+                            'circle-stroke-width': 2,
+                            'circle-stroke-color': '#ffffff'
+                        }
+                    });
+                }
+
+                // Agregar eventos de click
+                this.setupMapEvents();
+            }
+
+            clearMarkers() {
+                // Limpiar marcadores de Mapbox
+                this.markersOnMap.forEach(marker => marker.remove());
+                this.markersOnMap = [];
+            }
+
+            setupMapEvents() {
+                // Click en clusters para hacer zoom
+                this.map.on('click', 'clusters', (e) => {
+                    const features = this.map.queryRenderedFeatures(e.point, {
+                        layers: ['clusters']
+                    });
+                    const clusterId = features[0].properties.cluster_id;
+                    this.map.getSource('businesses').getClusterExpansionZoom(
+                        clusterId,
+                        (err, zoom) => {
+                            if (err) return;
+                            this.map.easeTo({
+                                center: features[0].geometry.coordinates,
+                                zoom: zoom
+                            });
+                        }
+                    );
+                });
+
+                // Click en negocios individuales
+                this.map.on('click', 'unclustered-point', (e) => {
+                    const business = e.features[0].properties;
+                    this.selectBusiness(business.id);
+                    this.showBusinessPopup(business, e.lngLat);
+                });
+
+                // Cambiar cursor en hover
+                this.map.on('mouseenter', 'clusters', () => {
+                    this.map.getCanvas().style.cursor = 'pointer';
+                });
+
+                this.map.on('mouseleave', 'clusters', () => {
+                    this.map.getCanvas().style.cursor = '';
+                });
+
+                this.map.on('mouseenter', 'unclustered-point', () => {
+                    this.map.getCanvas().style.cursor = 'pointer';
+                });
+
+                this.map.on('mouseleave', 'unclustered-point', () => {
+                    this.map.getCanvas().style.cursor = '';
+                });
+            }
+
+            showBusinessPopup(business, lngLat) {
+                const popupContent = `
+                    <div class="mapbox-popup">
+                        <h6 class="mb-2">${business.name}</h6>
+                        <p class="text-muted small mb-2">${business.address}</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="rating-stars me-2">
+                                ${this.generateStars(business.rating)}
+                            </div>
+                            <small class="text-muted">(${business.reviews} reseñas)</small>
+                        </div>
+                        ${business.phone ? `<p class="small mb-0"><i class="fas fa-phone me-1"></i> ${business.phone}</p>` : ''}
+                    </div>
+                `;
+
+                new mapboxgl.Popup()
+                    .setLngLat(lngLat)
+                    .setHTML(popupContent)
+                    .addTo(this.map);
+            }
+
+            /*
+            // MÉTODOS LEGACY DE LEAFLET - COMENTADOS PARA MAPBOX
+            createBusinessMarker(business) {
+                const icon = this.getBusinessIcon(business.business_type);
+                const markerClass = `marker-${business.map_marker_type || 'free'}`;
+                
+                const marker = L.marker([business.latitude, business.longitude], {
+                    icon: L.divIcon({
+                        className: `custom-marker ${markerClass}`,
+                        html: `<i class="fas ${icon}"></i>`,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    })
+                });
+
+                // Popup con información del negocio
+                const popupContent = this.createPopupContent(business);
+                marker.bindPopup(popupContent, {
+                    maxWidth: 300,
+                    className: 'business-popup'
+                });
+
+                // Evento click
+                marker.on('click', () => {
+                    this.selectBusiness(business.id);
+                });
+
+                return marker;
+            }
+
+            createPopupContent(business) {
+                const starsHtml = this.generateStars(business.rating_average || 0);
+                const logoHtml = business.logo_url ? 
+                    `<img src="${business.logo_url}" class="popup-logo" alt="${business.name}">` : 
+                    `<div class="popup-logo-placeholder"><i class="fas fa-store"></i></div>`;
+
+                return `
+                    <div class="popup-business">
+                        <div class="d-flex align-items-center mb-2">
+                            ${logoHtml}
+                            <div class="ms-3">
+                                <h6 class="mb-1">${business.name}</h6>
+                                <div class="d-flex align-items-center">
+                                    ${starsHtml}
+                                    <small class="text-muted ms-2">(${business.total_reviews || 0})</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p class="small mb-2">
+                            <i class="fas fa-map-marker-alt text-muted me-1"></i>
+                            ${business.address}
+                        </p>
+                        
+                        <div class="popup-actions">
+                            <a href="tel:${business.phone}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-phone"></i> Llamar
+                            </a>
+                            <button class="btn btn-sm btn-primary" onclick="viewBusinessDetails(${business.id})">
+                                <i class="fas fa-eye"></i> Ver detalles
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            */
+
+            updateBusinessGrid() {
+                const container = document.getElementById('businessContainer');
+                
+                if (this.businesses.length === 0) {
+                    this.showEmptyState();
+                    return;
+                }
+
+                let html = '';
+                
+                this.businesses.forEach(business => {
+                    const starsHtml = this.generateStars(business.rating_average || 0);
+                    const logoHtml = business.logo_url ? 
+                        `<img src="${business.logo_url}" class="business-logo" alt="${business.name}">` : 
+                        `<div class="business-logo d-flex align-items-center justify-content-center bg-light">
+                            <i class="fas fa-store text-muted"></i>
+                        </div>`;
+
+                    const servicesHtml = []
+                        .slice(0, 3)
+                        .map(service => `<span class="service-tag">${service}</span>`)
+                        .join('');
+
+                    const whatsappBtn = business.phone ? 
+                        `<a href="https://wa.me/${business.phone.replace(/\D/g, '')}" class="contact-btn whatsapp" target="_blank">
+                            <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                        </a>` : '';
+
+                    const colClass = this.currentView === 'grid' ? 'col-md-6 col-lg-4' : 'col-12';
+                    const planType = business.map_marker_type || 'free';
+
+                    html += `
+                        <div class="${colClass}">
+                            <div class="business-card" data-business-id="${business.id}">
+                                <div class="plan-badge ${planType}">
+                                    ${(business.plan_name || 'FREE').toUpperCase()}
+                                </div>
+                                
+                                <div class="d-flex align-items-start mb-3">
+                                    ${logoHtml}
+                                    <div class="ms-3 flex-grow-1">
+                                        <div class="business-name">${business.name}</div>
+                                        <div class="business-type">${this.getBusinessTypeLabel(business.business_type)}</div>
+                                        <div class="business-rating">
+                                            ${starsHtml}
+                                            <span class="text-muted small">(${business.total_reviews || 0} reseñas)</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p class="text-muted small mb-3">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    ${business.address}
+                                    ${business.distance_km ? `<span class="ms-2">${business.distance_km} km</span>` : ''}
+                                </p>
+
+                                <div class="business-services">
+                                    ${servicesHtml}
+                                </div>
+
+                                <div class="business-contact">
+                                    <a href="tel:${business.phone}" class="contact-btn outline">
+                                        <i class="fas fa-phone me-1"></i>Llamar
+                                    </a>
+                                    <button class="contact-btn primary" onclick="viewBusinessDetails(${business.id})">
+                                        <i class="fas fa-calendar me-1"></i>Reservar
+                                    </button>
+                                    ${whatsappBtn}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+                container.style.display = 'block';
+                document.getElementById('emptyState').style.display = 'none';
+            }
+
+            generateStars(rating) {
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating % 1 !== 0;
+                let html = '';
+
+                for (let i = 0; i < fullStars; i++) {
+                    html += '<i class="fas fa-star stars"></i>';
+                }
+
+                if (hasHalfStar) {
+                    html += '<i class="fas fa-star-half-alt stars"></i>';
+                }
+
+                const emptyStars = 5 - Math.ceil(rating);
+                for (let i = 0; i < emptyStars; i++) {
+                    html += '<i class="far fa-star stars"></i>';
+                }
+
+                return html;
+            }
+
+            getBusinessIcon(type) {
+                const icons = {
+                    'NAIL_SALON': 'fa-hand-sparkles',
+                    'BEAUTY_SALON': 'fa-spa',
+                    'SPA': 'fa-hot-tub',
+                    'BARBERSHOP': 'fa-cut',
+                    'STUDIO': 'fa-paint-brush'
+                };
+                return icons[type] || 'fa-store';
+            }
+
+            getBusinessTypeLabel(type) {
+                const labels = {
+                    'NAIL_SALON': 'Salón de Uñas',
+                    'BEAUTY_SALON': 'Salón de Belleza',
+                    'SPA': 'Spa',
+                    'BARBERSHOP': 'Barbería',
+                    'STUDIO': 'Estudio'
+                };
+                return labels[type] || 'Negocio';
+            }
+
+            selectBusiness(businessId) {
+                const business = this.businesses.find(b => b.id === businessId);
+                if (business && this.markers[businessId]) {
+                    this.map.setView(business.coordinates, 16);
+                    this.markers[businessId].openPopup();
+                }
+
+                // Resaltar tarjeta de negocio
+                document.querySelectorAll('.business-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                const selectedCard = document.querySelector(`[data-business-id="${businessId}"]`);
+                if (selectedCard) {
+                    selectedCard.classList.add('selected');
+                    selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            setupEventListeners() {
+                // Filtros
+                ['businessTypeFilter', 'ratingFilter', 'priceFilter', 'onlineBooking', 'homeService', 'promotions']
+                    .forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            element.addEventListener('change', () => this.applyFilters());
+                        }
+                    });
+            }
+
+            applyFilters() {
+                // Implementar lógica de filtros
+                // Por ahora solo simular
+                console.log('Applying filters...');
+            }
+
+            updateBusinessCount() {
+                document.getElementById('businessCount').textContent = this.businesses.length;
+            }
+
+            showEmptyState() {
+                document.getElementById('businessContainer').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'block';
+            }
+
+            hideLoading() {
+                document.getElementById('loadingState').style.display = 'none';
+            }
+
+            showLoading() {
+                document.getElementById('loadingState').style.display = 'block';
+                document.getElementById('businessContainer').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'none';
+            }
+        }
+
+        // Global functions
+        function searchBusinesses() {
+            const location = document.getElementById('locationSearch').value;
+            const serviceType = document.getElementById('serviceType').value;
+            const radius = document.getElementById('radiusSearch').value;
+            
+            console.log('Searching businesses:', { location, serviceType, radius });
+            businessDirectory.loadBusinesses();
+        }
+
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        businessDirectory.map.setView([lat, lng], 13);
+                        businessDirectory.userLocation = [lat, lng];
+                        
+                        L.marker([lat, lng], {
+                            icon: L.divIcon({
+                                className: 'user-location-marker',
+                                html: '<i class="fas fa-location-dot" style="color: #3388ff;"></i>',
+                                iconSize: [20, 20],
+                                iconAnchor: [10, 10]
+                            })
+                        }).addTo(businessDirectory.map).bindPopup('Tu ubicación');
+                        
+                        businessDirectory.loadBusinesses();
+                    },
+                    (error) => {
+                        console.warn('No se pudo obtener la ubicación:', error);
+                    }
+                );
+            }
+        }
+
+        function toggleMapView() {
+            // Cambiar entre vista satelital y mapa
+            console.log('Toggling map view...');
+        }
+
+        function centerMap() {
+            businessDirectory.map.setView([19.4326, -99.1332], 11);
+        }
+
+        function toggleView(view) {
+            businessDirectory.currentView = view;
+            
+            document.getElementById('gridViewBtn').classList.toggle('btn-outline-secondary', view !== 'grid');
+            document.getElementById('gridViewBtn').classList.toggle('btn-secondary', view === 'grid');
+            document.getElementById('listViewBtn').classList.toggle('btn-outline-secondary', view !== 'list');
+            document.getElementById('listViewBtn').classList.toggle('btn-secondary', view === 'list');
+            
+            businessDirectory.updateBusinessGrid();
+        }
+
+        function clearFilters() {
+            // Limpiar todos los filtros
+            document.getElementById('businessTypeFilter').value = '';
+            document.getElementById('ratingFilter').value = '';
+            document.getElementById('priceFilter').value = '';
+            document.getElementById('onlineBooking').checked = false;
+            document.getElementById('homeService').checked = false;
+            document.getElementById('promotions').checked = false;
+            
+            businessDirectory.loadBusinesses();
+        }
+
+        function viewBusinessDetails(businessId) {
+            console.log('Viewing business details for:', businessId);
+            // Implementar navegación a página de detalles del negocio
+        }
+
+        // Inicializar cuando se carga la página
+        let businessDirectory;
+        document.addEventListener('DOMContentLoaded', function() {
+            businessDirectory = new BusinessDirectory();
+        });
+    </script>
+
+    <style>
+        /* Estilos adicionales para el mapa */
+        .custom-marker {
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-size: 14px;
+            border: 2px solid white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        .marker-free {
+            background: #6c757d;
+        }
+
+        .marker-premium {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .marker-enterprise {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+        }
+
+        .business-popup .popup-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .business-popup .popup-logo-placeholder {
+            width: 40px;
+            height: 40px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+        }
+
+        .business-card.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .user-location-marker {
+            color: #3388ff;
+            font-size: 20px;
+        }
+
+        /* Estilos específicos para Mapbox */
+        .mapboxgl-popup {
+            max-width: 300px;
+        }
+
+        .mapboxgl-popup-content {
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .mapbox-popup h6 {
+            margin-bottom: 8px;
+            color: var(--dark-text);
+            font-weight: 600;
+        }
+
+        .mapbox-popup .rating-stars {
+            color: #ffc107;
+        }
+
+        .mapboxgl-ctrl-group {
+            border-radius: 8px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+
+        .mapboxgl-ctrl-geocoder {
+            min-width: 300px;
+            font-size: 14px;
+        }
+
+        .mapboxgl-ctrl-geocoder input {
+            border-radius: 8px;
+        }
+
+        /* Controles del mapa mejorados */
+        .mapboxgl-ctrl-zoom {
+            border-radius: 8px;
+        }
+
+        .mapboxgl-ctrl-compass {
+            border-radius: 8px;
+        }
+    </style>
+</body>
+</html>

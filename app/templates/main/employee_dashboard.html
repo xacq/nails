@@ -1,0 +1,328 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Panel de Empleado - Elegance Nails{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="fas fa-briefcase me-2"></i>Panel de Empleado - {{ current_user.first_name }} {{ current_user.last_name }}
+            </h1>
+        </div>
+    </div>
+
+    <!-- Estadísticas del día -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Citas Hoy</h5>
+                            <h2 class="mb-0">{{ today_appointments|length }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-day fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Completadas</h5>
+                            <h2 class="mb-0">{{ completed_today }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Pendientes</h5>
+                            <h2 class="mb-0">{{ pending_today }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Esta Semana</h5>
+                            <h2 class="mb-0">{{ upcoming_appointments|length }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-week fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Citas de Hoy -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-day me-2"></i>Citas de Hoy
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if today_appointments %}
+                        {% for appointment in today_appointments %}
+                        <div class="appointment-item border-bottom pb-3 mb-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="mb-1">
+                                        {{ appointment.client.first_name }} {{ appointment.client.last_name }}
+                                    </h6>
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ appointment.start_time.strftime('%H:%M') }}
+                                        {% if appointment.end_time %}
+                                        - {{ appointment.end_time.strftime('%H:%M') }}
+                                        {% endif %}
+                                    </p>
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-cut me-1"></i>
+                                        {% for service in appointment.services %}
+                                            {{ service.name }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                    {% if appointment.notes %}
+                                    <p class="text-muted mb-0">
+                                        <i class="fas fa-sticky-note me-1"></i>
+                                        {{ appointment.notes }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="badge 
+                                        {% if appointment.status.value == 'completed' %}bg-success
+                                        {% elif appointment.status.value == 'confirmed' %}bg-primary
+                                        {% elif appointment.status.value == 'cancelled' %}bg-danger
+                                        {% else %}bg-warning{% endif %}">
+                                        {% if appointment.status.value == 'completed' %}Completada
+                                        {% elif appointment.status.value == 'confirmed' %}Confirmada
+                                        {% elif appointment.status.value == 'cancelled' %}Cancelada
+                                        {% else %}Pendiente{% endif %}
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">
+                                        ${{ "%.0f"|format(appointment.total_amount or 0) }}
+                                    </small>
+                                    {% if appointment.status.value not in ['completed', 'cancelled'] %}
+                                    <br>
+                                    <div class="btn-group-vertical mt-1" role="group">
+                                        <a href="{{ url_for('appointments.edit', id=appointment.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No tienes citas programadas para hoy.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Próximas Citas Esta Semana -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-week me-2"></i>Próximas Citas (Esta Semana)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_appointments %}
+                        {% for appointment in upcoming_appointments %}
+                        <div class="appointment-item border-bottom pb-3 mb-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="mb-1">
+                                        {{ appointment.client.first_name }} {{ appointment.client.last_name }}
+                                    </h6>
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-calendar-day me-1"></i>
+                                        {{ appointment.appointment_date.strftime('%d/%m/%Y') }}
+                                    </p>
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ appointment.start_time.strftime('%H:%M') }}
+                                    </p>
+                                    <p class="text-muted mb-0">
+                                        <i class="fas fa-cut me-1"></i>
+                                        {% for service in appointment.services %}
+                                            {{ service.name }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="badge 
+                                        {% if appointment.status.value == 'confirmed' %}bg-success
+                                        {% else %}bg-warning{% endif %}">
+                                        {% if appointment.status.value == 'confirmed' %}Confirmada
+                                        {% else %}Pendiente{% endif %}
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">
+                                        ${{ "%.0f"|format(appointment.total_amount or 0) }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No tienes citas programadas para esta semana.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="quick-action">
+                                <a href="{{ url_for('appointments.list') }}" class="btn btn-outline-primary btn-lg w-100">
+                                    <i class="fas fa-calendar-alt fa-2x d-block mb-2"></i>
+                                    Ver Todas las Citas
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="quick-action">
+                                <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-info btn-lg w-100">
+                                    <i class="fas fa-user-edit fa-2x d-block mb-2"></i>
+                                    Mi Perfil
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="quick-action">
+                                <a href="{{ url_for('main.services') }}" class="btn btn-outline-success btn-lg w-100">
+                                    <i class="fas fa-cut fa-2x d-block mb-2"></i>
+                                    Ver Servicios
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Horario de Trabajo (si aplica) -->
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Información de Horario
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-calendar-week me-2"></i>Horario General:</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Lunes - Viernes:</strong> 9:00 AM - 7:00 PM</li>
+                                <li><strong>Sábados:</strong> 9:00 AM - 5:00 PM</li>
+                                <li><strong>Domingos:</strong> Cerrado</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-info-circle me-2"></i>Recordatorios:</h6>
+                            <ul class="list-unstyled">
+                                <li>• Confirmar citas 1 día antes</li>
+                                <li>• Actualizar estado al completar servicios</li>
+                                <li>• Revisar notas especiales de clientes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.appointment-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.quick-action .btn {
+    transition: all 0.3s ease;
+}
+
+.quick-action .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.btn-group-vertical .btn {
+    margin-bottom: 2px;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+</style>
+{% endblock %}

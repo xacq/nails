@@ -1,0 +1,339 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Contacto - Elegance Nails{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-gradient-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-envelope me-3"></i>Contáctanos
+                </h1>
+                <p class="lead mb-4">
+                    ¿Tienes alguna pregunta o quieres reservar una cita? Estamos aquí para ayudarte. 
+                    Ponte en contacto con nosotros y te responderemos lo antes posible.
+                </p>
+            </div>
+            <div class="col-lg-4 text-center">
+                <i class="fas fa-phone fa-5x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Información de Contacto -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="h4 mb-4">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>Información de Contacto
+                    </h3>
+                    
+                    <!-- Dirección -->
+                    <div class="contact-item mb-4">
+                        <div class="d-flex align-items-start">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6 mb-1">Dirección</h5>
+                                <p class="text-muted mb-0">
+                                    Calle Principal 123<br>
+                                    Centro Comercial Plaza<br>
+                                    Ciudad, Estado 12345
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="contact-item mb-4">
+                        <div class="d-flex align-items-start">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-phone fa-lg text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6 mb-1">Teléfono</h5>
+                                <p class="text-muted mb-0">
+                                    <a href="tel:+1234567890" class="text-decoration-none">+1 (234) 567-8900</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="contact-item mb-4">
+                        <div class="d-flex align-items-start">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-envelope fa-lg text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6 mb-1">Email</h5>
+                                <p class="text-muted mb-0">
+                                    <a href="mailto:info@elegancenails.com" class="text-decoration-none">info@elegancenails.com</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Horarios -->
+                    <div class="contact-item">
+                        <div class="d-flex align-items-start">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-clock fa-lg text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6 mb-2">Horarios de Atención</h5>
+                                <div class="text-muted small">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Lunes - Viernes:</span>
+                                        <span>9:00 AM - 7:00 PM</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Sábados:</span>
+                                        <span>9:00 AM - 6:00 PM</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Domingos:</span>
+                                        <span>10:00 AM - 4:00 PM</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de Contacto -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="h4 mb-4">
+                        <i class="fas fa-paper-plane me-2 text-primary"></i>Envíanos un Mensaje
+                    </h3>
+                    
+                    <form id="contactForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Apellido *</label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="phone" name="phone">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Asunto *</label>
+                            <select class="form-select" id="subject" name="subject" required>
+                                <option value="">Selecciona un asunto</option>
+                                <option value="appointment">Consulta sobre Citas</option>
+                                <option value="services">Información sobre Servicios</option>
+                                <option value="pricing">Consulta de Precios</option>
+                                <option value="complaint">Queja o Reclamo</option>
+                                <option value="suggestion">Sugerencia</option>
+                                <option value="other">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Mensaje *</label>
+                            <textarea class="form-control" id="message" name="message" rows="5" 
+                                      placeholder="Escribe tu mensaje aquí..." required></textarea>
+                            <div class="form-text">Máximo 500 caracteres</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="consent" name="consent" required>
+                                <label class="form-check-label" for="consent">
+                                    Acepto el tratamiento de mis datos personales según la 
+                                    <a href="{{ url_for('main.privacy') }}" target="_blank">Política de Privacidad</a> *
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="fas fa-undo me-1"></i>Limpiar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>Enviar Mensaje
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mapa y Acciones Rápidas -->
+    <div class="row mt-5">
+        <!-- Mapa Placeholder -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="h5 mb-3">
+                        <i class="fas fa-map me-2 text-primary"></i>Ubicación
+                    </h3>
+                    <div class="map-placeholder bg-light rounded d-flex align-items-center justify-content-center" 
+                         style="height: 300px;">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-map-marked-alt fa-3x mb-3"></i>
+                            <p>Mapa interactivo próximamente</p>
+                            <p class="small">Calle Principal 123, Centro Comercial Plaza</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="h5 mb-4">
+                        <i class="fas fa-bolt me-2 text-primary"></i>Acciones Rápidas
+                    </h3>
+                    
+                    <div class="d-grid gap-3">
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('appointments.create_appointment') }}" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus me-2"></i>Reservar Cita
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-2"></i>Crear Cuenta
+                        </a>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('main.services') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-spa me-2"></i>Ver Servicios
+                        </a>
+                        
+                        <a href="{{ url_for('main.pricing') }}" class="btn btn-outline-info">
+                            <i class="fas fa-tags me-2"></i>Ver Precios
+                        </a>
+                        
+                        <a href="tel:+1234567890" class="btn btn-outline-success">
+                            <i class="fas fa-phone me-2"></i>Llamar Ahora
+                        </a>
+                        
+                        <a href="mailto:info@elegancenails.com" class="btn btn-outline-secondary">
+                            <i class="fas fa-envelope me-2"></i>Enviar Email
+                        </a>
+                    </div>
+
+                    <!-- Redes Sociales -->
+                    <hr class="my-4">
+                    <h6 class="text-muted mb-3">Síguenos en:</h6>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="#" class="btn btn-outline-primary btn-sm">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-info btn-sm">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-danger btn-sm">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-success btn-sm">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.contact-icon {
+    width: 40px;
+    text-align: center;
+}
+
+.contact-item {
+    padding: 10px 0;
+}
+
+.map-placeholder {
+    border: 2px dashed #dee2e6;
+}
+
+@media (max-width: 768px) {
+    .hero-section .display-4 {
+        font-size: 2.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactForm');
+    const messageTextarea = document.getElementById('message');
+    
+    // Contador de caracteres para el mensaje
+    if (messageTextarea) {
+        const maxLength = 500;
+        const formText = messageTextarea.nextElementSibling;
+        
+        messageTextarea.addEventListener('input', function() {
+            const currentLength = this.value.length;
+            const remaining = maxLength - currentLength;
+            
+            if (remaining < 0) {
+                this.value = this.value.substring(0, maxLength);
+                formText.textContent = 'Máximo 500 caracteres (límite alcanzado)';
+                formText.className = 'form-text text-danger';
+            } else {
+                formText.textContent = `Máximo 500 caracteres (${remaining} restantes)`;
+                formText.className = remaining < 50 ? 'form-text text-warning' : 'form-text';
+            }
+        });
+    }
+    
+    // Manejo del envío del formulario
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simulación de envío (aquí se integraría con el backend)
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Enviando...';
+            submitBtn.disabled = true;
+            
+            setTimeout(() => {
+                alert('¡Mensaje enviado exitosamente! Te responderemos pronto.');
+                this.reset();
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 2000);
+        });
+    }
+});
+</script>
+{% endblock %}

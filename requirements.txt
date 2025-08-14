@@ -1,0 +1,50 @@
+# ================================================================
+# ELEGANCE NAILS SAAS PLATFORM - DEPENDENCIAS
+# Requirements.txt para la plataforma multi-tenant
+# ================================================================
+
+# Core Flask Framework
+Flask==2.3.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-WTF==1.1.1
+Flask-Mail==0.9.1
+Flask-Migrate==4.0.5
+Flask-Moment==1.0.5
+Werkzeug==2.3.7
+WTForms==3.0.1
+PyMySQL==1.1.0
+python-dotenv==1.0.0
+Pillow==10.0.1
+Flask-CORS==4.0.0
+Flask-JWT-Extended==4.5.3
+bcrypt==4.0.1
+email-validator==2.0.0
+phonenumbers==8.13.21
+
+# Nuevas dependencias para sistema multi-tenant
+Flask-MySQLdb==1.0.1
+mysqlclient==2.2.0
+requests==2.31.0
+urllib3==2.0.4
+python-dateutil==2.8.2
+pytz==2023.3
+Flask-Caching==2.1.0
+redis==5.0.0
+Flask-RESTful==0.3.10
+marshmallow==3.20.1
+Flask-Marshmallow==0.15.0
+Flask-Limiter==3.5.0
+geopy==2.4.0
+stripe==6.6.0
+Jinja2==3.1.2
+MarkupSafe==2.1.3
+gunicorn==21.2.0
+python-magic==0.4.27
+cryptography==41.0.4
+qrcode==7.4.2
+bleach==6.0.0
+html5lib==1.1
+Flask-Compress==1.13
+uuid==1.30
+psutil==5.9.5

@@ -1,0 +1,296 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Gestión de Servicios - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-spa me-2"></i>Gestión de Servicios
+                </h1>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#serviceModal">
+                    <i class="fas fa-plus me-1"></i>Nuevo Servicio
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ url_for('admin.services') }}" 
+                           class="btn btn-outline-primary {{ 'active' if not request.args.get('category') else '' }}">
+                            Todos los servicios
+                        </a>
+                        {% for category in categories %}
+                        <a href="{{ url_for('admin.services', category=category.id) }}" 
+                           class="btn btn-outline-primary {{ 'active' if request.args.get('category') == category.id|string else '' }}">
+                            {{ category.name }} ({{ category.services|length }})
+                        </a>
+                        {% endfor %}
+                        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                            <i class="fas fa-plus me-1"></i>Nueva Categoría
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de servicios -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Servicio</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Duración</th>
+                                    <th>Estado</th>
+                                    <th>Citas</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for service in services %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if service.image_url %}
+                                            <img src="{{ service.image_url }}" alt="{{ service.name }}" 
+                                                 class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                            {% else %}
+                                            <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 50px; height: 50px;">
+                                                <i class="fas fa-spa text-muted"></i>
+                                            </div>
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-1">{{ service.name }}</h6>
+                                                <small class="text-muted">{{ service.description[:50] }}{{ '...' if service.description|length > 50 else '' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if service.category %}
+                                        <span class="badge bg-info">{{ service.category.name }}</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Sin categoría</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>${{ "%.2f"|format(service.price) }}</td>
+                                    <td>{{ service.duration }} min</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if service.is_active else 'danger' }}">
+                                            {{ 'Activo' if service.is_active else 'Inactivo' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ service.appointments|length }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary" 
+                                                    onclick="editService({{ service.id }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-{{ 'danger' if service.is_active else 'success' }}" 
+                                                    onclick="toggleService({{ service.id }}, {{ service.is_active|lower }})">
+                                                <i class="fas fa-{{ 'pause' if service.is_active else 'play' }}"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger" 
+                                                    onclick="deleteService({{ service.id }})"
+                                                    {{ 'disabled' if service.appointments|length > 0 else '' }}>
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        No hay servicios registrados
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para servicios -->
+<div class="modal fade" id="serviceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="serviceForm" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo Servicio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Nombre del Servicio</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="category_id" class="form-label">Categoría</label>
+                            <select class="form-select" id="category_id" name="category_id">
+                                <option value="">Seleccionar categoría</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="price" class="form-label">Precio</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="duration" class="form-label">Duración (minutos)</label>
+                            <input type="number" class="form-control" id="duration" name="duration" min="15" step="15" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Imagen del Servicio</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                        <div class="form-text">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB</div>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                        <label class="form-check-label" for="is_active">
+                            Servicio activo
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Servicio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para categorías -->
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="categoryForm" method="POST" action="{{ url_for('admin.create_category') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Categoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="category_name" class="form-label">Nombre de la Categoría</label>
+                        <input type="text" class="form-control" id="category_name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category_description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="category_description" name="description" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Crear Categoría</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let editingServiceId = null;
+
+function editService(serviceId) {
+    // Aquí cargarías los datos del servicio y poblarías el modal
+    editingServiceId = serviceId;
+    document.querySelector('#serviceModal .modal-title').textContent = 'Editar Servicio';
+    const modal = new bootstrap.Modal(document.getElementById('serviceModal'));
+    modal.show();
+}
+
+async function toggleService(serviceId, isActive) {
+    const action = isActive ? 'desactivar' : 'activar';
+    if (!confirm(`¿Estás seguro de que deseas ${action} este servicio?`)) return;
+    
+    try {
+        const response = await fetch(`{{ url_for('api.toggle_service', id=0) }}`.replace('0', serviceId), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Error al cambiar el estado del servicio.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cambiar el estado del servicio.');
+    }
+}
+
+async function deleteService(serviceId) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este servicio? Esta acción no se puede deshacer.')) return;
+    
+    try {
+        const response = await fetch(`{{ url_for('api.delete_service', id=0) }}`.replace('0', serviceId), {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Error al eliminar el servicio.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al eliminar el servicio.');
+    }
+}
+
+// Reset modal when closed
+document.getElementById('serviceModal').addEventListener('hidden.bs.modal', function () {
+    editingServiceId = null;
+    document.querySelector('#serviceModal .modal-title').textContent = 'Nuevo Servicio';
+    document.getElementById('serviceForm').reset();
+});
+</script>
+{% endblock %}

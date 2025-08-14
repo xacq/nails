@@ -1,0 +1,218 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Crear Cita - Elegance Nails{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="fas fa-calendar-plus me-2"></i>Crear Nueva Cita
+            </h1>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-form me-2"></i>Datos de la Cita
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="appointmentForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        
+                        <!-- Cliente -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="client_id" class="form-label">Cliente</label>
+                                <select class="form-select" id="client_id" name="client_id" required>
+                                    <option value="">Selecciona un cliente</option>
+                                    {% for client in clients %}
+                                    <option value="{{ client.id }}">{{ client.full_name }} ({{ client.email }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Empleado -->
+                            <div class="col-md-6">
+                                <label for="employee_id" class="form-label">Empleado</label>
+                                <select class="form-select" id="employee_id" name="employee_id" required>
+                                    <option value="">Selecciona un empleado</option>
+                                    {% for employee in employees %}
+                                    <option value="{{ employee.id }}">{{ employee.full_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Fecha y Hora -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="appointment_date" class="form-label">Fecha de la Cita</label>
+                                <input type="date" class="form-control" id="appointment_date" name="appointment_date" 
+                                       min="{{ today.strftime('%Y-%m-%d') }}" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="start_time" class="form-label">Hora de Inicio</label>
+                                <select class="form-select" id="start_time" name="start_time" required>
+                                    <option value="">Selecciona una hora</option>
+                                    <option value="09:00">09:00 AM</option>
+                                    <option value="09:30">09:30 AM</option>
+                                    <option value="10:00">10:00 AM</option>
+                                    <option value="10:30">10:30 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="11:30">11:30 AM</option>
+                                    <option value="12:00">12:00 PM</option>
+                                    <option value="12:30">12:30 PM</option>
+                                    <option value="13:00">01:00 PM</option>
+                                    <option value="13:30">01:30 PM</option>
+                                    <option value="14:00">02:00 PM</option>
+                                    <option value="14:30">02:30 PM</option>
+                                    <option value="15:00">03:00 PM</option>
+                                    <option value="15:30">03:30 PM</option>
+                                    <option value="16:00">04:00 PM</option>
+                                    <option value="16:30">04:30 PM</option>
+                                    <option value="17:00">05:00 PM</option>
+                                    <option value="17:30">05:30 PM</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Servicios -->
+                        <div class="mb-3">
+                            <label class="form-label">Servicios</label>
+                            <div class="row">
+                                {% for service in services %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input service-checkbox" type="checkbox" 
+                                               name="services" value="{{ service.id }}" id="service_{{ service.id }}"
+                                               data-price="{{ service.price }}" data-duration="{{ service.duration_minutes }}">
+                                        <label class="form-check-label" for="service_{{ service.id }}">
+                                            <strong>{{ service.name }}</strong><br>
+                                            <small class="text-muted">{{ service.description }}</small><br>
+                                            <span class="badge bg-primary">${{ "%.2f"|format(service.price) }}</span>
+                                            <span class="badge bg-info">{{ service.duration_minutes }} min</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="invalid-feedback">
+                                Debes seleccionar al menos un servicio
+                            </div>
+                        </div>
+
+                        <!-- Resumen -->
+                        <div class="mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Resumen de la Cita</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Duración Total:</strong> <span id="total-duration">0 minutos</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Precio Total:</strong> <span id="total-price">$0.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>Hora de Fin Estimada:</strong> <span id="end-time">--:--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notas -->
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notas (Opcional)</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                      placeholder="Notas adicionales para la cita..."></textarea>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('appointments.list_appointments') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Crear Cita
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const serviceCheckboxes = document.querySelectorAll('.service-checkbox');
+    const totalDurationEl = document.getElementById('total-duration');
+    const totalPriceEl = document.getElementById('total-price');
+    const endTimeEl = document.getElementById('end-time');
+    const startTimeEl = document.getElementById('start_time');
+    const appointmentDateEl = document.getElementById('appointment_date');
+
+    // Establecer fecha mínima como hoy (respaldo si no se pasó desde backend)
+    if (!appointmentDateEl.min) {
+        const today = new Date().toISOString().split('T')[0];
+        appointmentDateEl.min = today;
+    }
+
+    function updateSummary() {
+        let totalDuration = 0;
+        let totalPrice = 0;
+
+        serviceCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                totalDuration += parseInt(checkbox.dataset.duration);
+                totalPrice += parseFloat(checkbox.dataset.price);
+            }
+        });
+
+        totalDurationEl.textContent = totalDuration + ' minutos';
+        totalPriceEl.textContent = '$' + totalPrice.toFixed(2);
+
+        // Calcular hora de fin
+        if (startTimeEl.value && totalDuration > 0) {
+            const startTime = startTimeEl.value;
+            const [hours, minutes] = startTime.split(':').map(Number);
+            const startDate = new Date();
+            startDate.setHours(hours, minutes, 0, 0);
+            
+            const endDate = new Date(startDate.getTime() + totalDuration * 60000);
+            const endTimeString = endDate.toLocaleTimeString('es-ES', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: false 
+            });
+            endTimeEl.textContent = endTimeString;
+        } else {
+            endTimeEl.textContent = '--:--';
+        }
+    }
+
+    serviceCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSummary);
+    });
+
+    startTimeEl.addEventListener('change', updateSummary);
+
+    // Validar formulario
+    document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+        const checkedServices = document.querySelectorAll('.service-checkbox:checked');
+        if (checkedServices.length === 0) {
+            e.preventDefault();
+            alert('Debes seleccionar al menos un servicio');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

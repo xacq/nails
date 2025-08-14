@@ -1,0 +1,208 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Detalles de Cita - Elegance Nails{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>Detalles de la Cita
+                </h1>
+                <div>
+                    <a href="{{ url_for('appointments.list_appointments') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Volver a la Lista
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información Principal -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Información de la Cita
+                    </h5>
+                    <span class="badge bg-{{ 'success' if appointment.status.value == 'confirmed' else 'warning' if appointment.status.value == 'pending' else 'info' if appointment.status.value == 'completed' else 'danger' }} fs-6">
+                        {{ appointment.status.value.title() }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-user me-2"></i>Cliente</h6>
+                            <p class="mb-3">
+                                <strong>{{ appointment.client.full_name }}</strong><br>
+                                <small class="text-muted">{{ appointment.client.email }}</small><br>
+                                {% if appointment.client.phone %}
+                                <small class="text-muted">{{ appointment.client.phone }}</small>
+                                {% endif %}
+                            </p>
+
+                            <h6><i class="fas fa-user-tie me-2"></i>Empleado</h6>
+                            <p class="mb-3">
+                                <strong>{{ appointment.employee.full_name }}</strong><br>
+                                <small class="text-muted">{{ appointment.employee.email }}</small>
+                            </p>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-calendar me-2"></i>Fecha y Hora</h6>
+                            <p class="mb-3">
+                                <strong>{{ appointment.appointment_date.strftime('%d de %B de %Y') }}</strong><br>
+                                <small class="text-muted">
+                                    {{ appointment.start_time.strftime('%H:%M') }} - {{ appointment.end_time.strftime('%H:%M') }}
+                                </small>
+                            </p>
+
+                            <h6><i class="fas fa-dollar-sign me-2"></i>Precio Total</h6>
+                            <p class="mb-3">
+                                <strong class="text-primary">${{ "%.2f"|format(appointment.total_price) }}</strong>
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if appointment.confirmation_code %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-barcode me-2"></i>
+                        <strong>Código de Confirmación:</strong> {{ appointment.confirmation_code }}
+                    </div>
+                    {% endif %}
+
+                    {% if appointment.notes %}
+                    <div class="mt-3">
+                        <h6><i class="fas fa-sticky-note me-2"></i>Notas</h6>
+                        <p class="mb-0">{{ appointment.notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Servicios -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-spa me-2"></i>Servicios Contratados
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for service in appointment.services %}
+                        <div class="col-md-6 mb-3">
+                            <div class="border rounded p-3">
+                                <h6 class="mb-1">{{ service.name }}</h6>
+                                <p class="text-muted mb-2">{{ service.description }}</p>
+                                <div class="d-flex justify-content-between">
+                                    <span class="badge bg-primary">${{ "%.2f"|format(service.price) }}</span>
+                                    <span class="badge bg-info">{{ service.duration_minutes }} min</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Acciones -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>Acciones
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if current_user.role.value == 'admin' or (current_user.role.value == 'employee' and appointment.employee_id == current_user.id) %}
+                    <!-- Cambiar Estado -->
+                    <div class="mb-3">
+                        <h6>Cambiar Estado</h6>
+                        <form method="POST" action="{{ url_for('appointments.update_status', id=appointment.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <div class="mb-2">
+                                <select class="form-select" name="status" required>
+                                    <option value="">Seleccionar estado</option>
+                                    <option value="pending" {{ 'selected' if appointment.status.value == 'pending' else '' }}>Pendiente</option>
+                                    <option value="confirmed" {{ 'selected' if appointment.status.value == 'confirmed' else '' }}>Confirmada</option>
+                                    <option value="completed" {{ 'selected' if appointment.status.value == 'completed' else '' }}>Completada</option>
+                                    <option value="cancelled" {{ 'selected' if appointment.status.value == 'cancelled' else '' }}>Cancelada</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <textarea class="form-control" name="internal_notes" placeholder="Notas internas (opcional)" rows="2"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary w-100">
+                                <i class="fas fa-save me-1"></i>Actualizar Estado
+                            </button>
+                        </form>
+                    </div>
+                    <hr>
+                    {% endif %}
+
+                    <!-- Acciones Generales -->
+                    {% if appointment.status.value not in ['completed', 'cancelled'] %}
+                    <div class="mb-3">
+                        <h6>Cancelar Cita</h6>
+                        <form method="POST" action="{{ url_for('appointments.cancel_appointment', id=appointment.id) }}" 
+                              onsubmit="return confirm('¿Estás seguro de que quieres cancelar esta cita?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn btn-sm btn-danger w-100">
+                                <i class="fas fa-times me-1"></i>Cancelar Cita
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    <!-- Información Adicional -->
+                    <div class="mt-4">
+                        <h6>Información Adicional</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Creada:</strong> {{ appointment.created_at.strftime('%d/%m/%Y %H:%M') if appointment.created_at else 'N/A' }}</li>
+                            {% if appointment.updated_at %}
+                            <li><strong>Actualizada:</strong> {{ appointment.updated_at.strftime('%d/%m/%Y %H:%M') }}</li>
+                            {% endif %}
+                            <li><strong>Duración Total:</strong> {{ (appointment.services | sum(attribute='duration_minutes')) }} minutos</li>
+                        </ul>
+                    </div>
+
+                    {% if appointment.internal_notes and (current_user.role.value in ['admin', 'employee']) %}
+                    <div class="mt-3">
+                        <h6>Notas Internas</h6>
+                        <div class="border rounded p-2 bg-light">
+                            <small>{{ appointment.internal_notes | replace('\n', '<br>') | safe }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Contacto del Cliente (solo para empleados/admin) -->
+            {% if current_user.role.value in ['admin', 'employee'] %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-address-book me-2"></i>Contacto del Cliente
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if appointment.client.phone %}
+                        <a href="tel:{{ appointment.client.phone }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-phone me-1"></i>Llamar
+                        </a>
+                        {% endif %}
+                        <a href="mailto:{{ appointment.client.email }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-envelope me-1"></i>Enviar Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

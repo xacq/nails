@@ -1,0 +1,52 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Términos y Condiciones - Elegance Nails{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="h2 mb-4">
+                <i class="fas fa-file-contract me-2 text-primary"></i>Términos y Condiciones
+            </h1>
+            
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted">Última actualización: Enero 2025</p>
+                    
+                    <h3 class="h4 mt-4">1. Aceptación de Términos</h3>
+                    <p>Al utilizar los servicios de Elegance Nails, usted acepta estos términos y condiciones en su totalidad.</p>
+                    
+                    <h3 class="h4 mt-4">2. Servicios</h3>
+                    <p>Elegance Nails ofrece servicios de belleza y cuidado de uñas. Nos reservamos el derecho de modificar nuestros servicios en cualquier momento.</p>
+                    
+                    <h3 class="h4 mt-4">3. Reservas y Cancelaciones</h3>
+                    <ul>
+                        <li>Las citas deben ser canceladas con al menos 2 horas de anticipación</li>
+                        <li>Cancelaciones tardías pueden estar sujetas a cargos</li>
+                        <li>Nos reservamos el derecho de cancelar citas por motivos de fuerza mayor</li>
+                    </ul>
+                    
+                    <h3 class="h4 mt-4">4. Pagos</h3>
+                    <p>Los servicios deben ser pagados al momento de la prestación. Aceptamos efectivo, tarjetas de crédito y débito.</p>
+                    
+                    <h3 class="h4 mt-4">5. Responsabilidad</h3>
+                    <p>Elegance Nails no se hace responsable por reacciones alérgicas o efectos adversos no comunicados previamente por el cliente.</p>
+                    
+                    <h3 class="h4 mt-4">6. Privacidad</h3>
+                    <p>Respetamos su privacidad. Consulte nuestra <a href="{{ url_for('main.privacy') }}">Política de Privacidad</a> para más información.</p>
+                    
+                    <h3 class="h4 mt-4">7. Contacto</h3>
+                    <p>Para consultas sobre estos términos, contáctenos en info@elegancenails.com</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                    <i class="fas fa-home me-1"></i>Volver al Inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

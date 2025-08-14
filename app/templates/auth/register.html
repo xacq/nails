@@ -1,0 +1,196 @@
+{% extends "base/layout.html" %}
+
+{% block title %}Registro - Salón de Uñas Elegance{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                        <h3 class="fw-bold">Crear Cuenta</h3>
+                        <p class="text-muted">Únete a la familia Elegance Nails</p>
+                    </div>
+                    
+                    <form method="POST" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2"></i>Nombre
+                                </label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       placeholder="Tu nombre" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2"></i>Apellido
+                                </label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       placeholder="Tu apellido" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">
+                                <i class="fas fa-envelope me-2"></i>Correo Electrónico
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="tu@email.com" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label fw-semibold">
+                                <i class="fas fa-phone me-2"></i>Teléfono
+                            </label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   placeholder="+1 234 567 8900" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-semibold">
+                                <i class="fas fa-lock me-2"></i>Contraseña
+                            </label>
+                            <div class="position-relative">
+                                <input type="password" class="form-control" id="password" name="password" 
+                                       placeholder="Mínimo 8 caracteres" required>
+                                <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y" 
+                                        onclick="togglePassword('password')">
+                                    <i class="fas fa-eye" id="password-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">
+                                La contraseña debe tener al menos 8 caracteres e incluir mayúsculas, minúsculas y números.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label fw-semibold">
+                                <i class="fas fa-lock me-2"></i>Confirmar Contraseña
+                            </label>
+                            <div class="position-relative">
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                       placeholder="Repite tu contraseña" required>
+                                <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y" 
+                                        onclick="togglePassword('confirm_password')">
+                                    <i class="fas fa-eye" id="confirm_password-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                Acepto los 
+                                <a href="{{ url_for('main.terms') }}" class="text-primary text-decoration-none" target="_blank">
+                                    términos y condiciones
+                                </a> 
+                                y la 
+                                <a href="{{ url_for('main.privacy') }}" class="text-primary text-decoration-none" target="_blank">
+                                    política de privacidad
+                                </a>
+                            </label>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="newsletter">
+                            <label class="form-check-label" for="newsletter">
+                                Quiero recibir ofertas especiales y promociones por email
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Crear Mi Cuenta
+                            </button>
+                        </div>
+                        
+                        <div class="text-center">
+                            <p class="text-muted">
+                                ¿Ya tienes cuenta? 
+                                <a href="{{ url_for('auth.login') }}" class="text-primary fw-semibold text-decoration-none">
+                                    Inicia sesión aquí
+                                </a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Benefits Card -->
+            <div class="card mt-4 border-success">
+                <div class="card-body">
+                    <h6 class="card-title text-success">
+                        <i class="fas fa-star me-2"></i>Beneficios de Crear una Cuenta
+                    </h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="fas fa-check text-success me-2"></i>Reserva citas online 24/7</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Historial de servicios</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Programa de puntos de lealtad</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Ofertas exclusivas para miembros</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Recordatorios de citas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const eye = document.getElementById(inputId + '-eye');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        eye.classList.remove('fa-eye');
+        eye.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        eye.classList.remove('fa-eye-slash');
+        eye.classList.add('fa-eye');
+    }
+}
+
+// Validación de contraseña en tiempo real
+document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    // Validar fuerza de contraseña
+    const hasMinLength = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    
+    const isStrong = hasMinLength && hasUpper && hasLower && hasNumber;
+    
+    this.classList.remove('is-valid', 'is-invalid');
+    if (password.length > 0) {
+        this.classList.add(isStrong ? 'is-valid' : 'is-invalid');
+    }
+    
+    // Validar coincidencia de contraseñas
+    if (confirmPassword) {
+        validatePasswordMatch();
+    }
+});
+
+document.getElementById('confirm_password').addEventListener('input', validatePasswordMatch);
+
+function validatePasswordMatch() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    confirmPassword.classList.remove('is-valid', 'is-invalid');
+    if (confirmPassword.value.length > 0) {
+        confirmPassword.classList.add(password === confirmPassword.value ? 'is-valid' : 'is-invalid');
+    }
+}
+</script>
+{% endblock %}

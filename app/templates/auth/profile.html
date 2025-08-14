@@ -1,0 +1,244 @@
+{% extends 'base/layout.html' %}
+
+{% block title %}Mi Perfil - Elegance Nails{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="fas fa-user-circle me-2"></i>Mi Perfil
+            </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información del Perfil -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Información Personal
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('auth.update_profile') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       value="{{ user.first_name or '' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label">Apellido</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       value="{{ user.last_name or '' }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ user.email }}" disabled>
+                                <small class="text-muted">El email no se puede modificar</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       value="{{ user.phone or '' }}" placeholder="Ej: +1 234 567 8900">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Dirección</label>
+                            <textarea class="form-control" id="address" name="address" rows="2" 
+                                      placeholder="Dirección completa">{{ user.address or '' }}</textarea>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="date_of_birth" class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
+                                       value="{{ user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="role" class="form-label">Rol</label>
+                                <input type="text" class="form-control" id="role" name="role" 
+                                       value="{{ user.role.value.title() }}" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Contacto de Emergencia -->
+                        <h6 class="mt-4 mb-3">
+                            <i class="fas fa-phone-alt me-2"></i>Contacto de Emergencia
+                        </h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="emergency_contact" class="form-label">Nombre del Contacto</label>
+                                <input type="text" class="form-control" id="emergency_contact" name="emergency_contact" 
+                                       value="{{ user.emergency_contact or '' }}" placeholder="Nombre completo">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="emergency_phone" class="form-label">Teléfono de Emergencia</label>
+                                <input type="tel" class="form-control" id="emergency_phone" name="emergency_phone" 
+                                       value="{{ user.emergency_phone or '' }}" placeholder="Ej: +1 234 567 8900">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Volver
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Lateral -->
+        <div class="col-lg-4">
+            <!-- Avatar y Estado -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="avatar-circle mx-auto mb-3" style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user fa-3x text-white"></i>
+                        </div>
+                        <h5 class="mb-1">{{ user.full_name }}</h5>
+                        <span class="badge bg-{{ 'success' if user.role.value == 'admin' else 'info' if user.role.value == 'employee' else 'primary' }} fs-6">
+                            {{ user.role.value.title() }}
+                        </span>
+                    </div>
+                    
+                    <div class="text-muted small">
+                        <p><i class="fas fa-envelope me-1"></i>{{ user.email }}</p>
+                        {% if user.phone %}
+                        <p><i class="fas fa-phone me-1"></i>{{ user.phone }}</p>
+                        {% endif %}
+                        <p><i class="fas fa-calendar me-1"></i>Miembro desde {{ user.created_at.strftime('%B %Y') if user.created_at else 'N/A' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cambiar Contraseña -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lock me-2"></i>Seguridad
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">
+                        Cambia tu contraseña regularmente para mantener tu cuenta segura.
+                    </p>
+                    <button type="button" class="btn btn-outline-warning w-100" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                        <i class="fas fa-key me-1"></i>Cambiar Contraseña
+                    </button>
+                </div>
+            </div>
+
+            <!-- Estadísticas (solo para clientes) -->
+            {% if user.role.value == 'client' %}
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Mis Estadísticas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-2">
+                            <div class="border-end">
+                                <h4 class="mb-0 text-primary">{{ user.appointments|length if user.appointments else 0 }}</h4>
+                                <small class="text-muted">Citas Totales</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <h4 class="mb-0 text-success">{{ user.loyalty_points or 0 }}</h4>
+                            <small class="text-muted">Puntos</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Cambiar Contraseña -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">
+                    <i class="fas fa-lock me-2"></i>Cambiar Contraseña
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('auth.change_password') }}">
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    
+                    <div class="mb-3">
+                        <label for="current_password" class="form-label">Contraseña Actual</label>
+                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" required>
+                        <small class="text-muted">
+                            Mínimo 8 caracteres, al menos una mayúscula, una minúscula y un número.
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirmar Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Cambiar Contraseña
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validar formulario de cambio de contraseña
+    const changePasswordForm = document.querySelector('#changePasswordModal form');
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', function(e) {
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (newPassword !== confirmPassword) {
+                e.preventDefault();
+                alert('Las contraseñas no coinciden');
+                return false;
+            }
+            
+            // Validar complejidad de contraseña
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
+            if (!passwordRegex.test(newPassword)) {
+                e.preventDefault();
+                alert('La contraseña debe tener al menos 8 caracteres, incluyendo una mayúscula, una minúscula y un número');
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

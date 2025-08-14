@@ -1,0 +1,226 @@
+<!-- Modal para confirmar cita -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Cita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas confirmar esta cita?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="confirmBtn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para iniciar cita -->
+<div class="modal fade" id="startModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Iniciar Cita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está listo para comenzar con esta cita?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="startBtn">Iniciar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para completar cita -->
+<div class="modal fade" id="completeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Completar Cita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Has terminado con esta cita?</p>
+                <div class="mb-3">
+                    <label for="notes" class="form-label">Notas del servicio (opcional)</label>
+                    <textarea class="form-control" id="notes" rows="3" placeholder="Observaciones sobre el servicio realizado..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="completeBtn">Completar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para cancelar cita -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancelar Cita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas cancelar esta cita?</p>
+                <div class="mb-3">
+                    <label for="cancelReason" class="form-label">Motivo de cancelación</label>
+                    <select class="form-select" id="cancelReason">
+                        <option value="">Seleccionar motivo</option>
+                        <option value="client_request">Solicitud del cliente</option>
+                        <option value="emergency">Emergencia</option>
+                        <option value="illness">Enfermedad</option>
+                        <option value="scheduling_conflict">Conflicto de horario</option>
+                        <option value="other">Otro</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="cancelNotes" class="form-label">Notas adicionales (opcional)</label>
+                    <textarea class="form-control" id="cancelNotes" rows="2" placeholder="Detalles adicionales..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No cancelar</button>
+                <button type="button" class="btn btn-danger" id="cancelBtn">Sí, cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentAppointmentId = null;
+
+    // Manejar clicks en botones de acción
+    document.querySelectorAll('[data-appointment-id]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentAppointmentId = this.getAttribute('data-appointment-id');
+        });
+    });
+
+    // Confirmar cita
+    document.getElementById('confirmBtn').addEventListener('click', async function() {
+        if (!currentAppointmentId) return;
+        
+        try {
+            const response = await fetch(`/api/appointments/${currentAppointmentId}/confirm`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                }
+            });
+            
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error al confirmar la cita');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al confirmar la cita');
+        }
+        
+        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+    });
+
+    // Iniciar cita
+    document.getElementById('startBtn').addEventListener('click', async function() {
+        if (!currentAppointmentId) return;
+        
+        try {
+            const response = await fetch(`/api/appointments/${currentAppointmentId}/start`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                }
+            });
+            
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error al iniciar la cita');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al iniciar la cita');
+        }
+        
+        bootstrap.Modal.getInstance(document.getElementById('startModal')).hide();
+    });
+
+    // Completar cita
+    document.getElementById('completeBtn').addEventListener('click', async function() {
+        if (!currentAppointmentId) return;
+        
+        const notes = document.getElementById('notes').value;
+        
+        try {
+            const response = await fetch(`/api/appointments/${currentAppointmentId}/complete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                },
+                body: JSON.stringify({ notes: notes })
+            });
+            
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error al completar la cita');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al completar la cita');
+        }
+        
+        bootstrap.Modal.getInstance(document.getElementById('completeModal')).hide();
+    });
+
+    // Cancelar cita
+    document.getElementById('cancelBtn').addEventListener('click', async function() {
+        if (!currentAppointmentId) return;
+        
+        const reason = document.getElementById('cancelReason').value;
+        const notes = document.getElementById('cancelNotes').value;
+        
+        if (!reason) {
+            alert('Por favor selecciona un motivo de cancelación');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/appointments/${currentAppointmentId}/cancel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                },
+                body: JSON.stringify({ 
+                    reason: reason,
+                    notes: notes 
+                })
+            });
+            
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error al cancelar la cita');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al cancelar la cita');
+        }
+        
+        bootstrap.Modal.getInstance(document.getElementById('cancelModal')).hide();
+    });
+});
+</script>
